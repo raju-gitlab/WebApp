@@ -91,7 +91,9 @@
     <Compile Include="app_configs\IocConfig.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Classes\AuthBusiness.cs" />
+    <Compile Include="Classes\PostsBusiness.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
+    <Compile Include="Interfaces\IPostsBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

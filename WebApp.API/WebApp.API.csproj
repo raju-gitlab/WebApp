@@ -154,6 +154,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IocConfig.cs" />
+    <Compile Include="App_Start\ModelValidateAttribute.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -184,7 +185,9 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PostsController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -287,6 +290,10 @@
     <ProjectReference Include="..\WP.Repository\WP.Repository.csproj">
       <Project>{03fb6ae5-fbaa-4774-ad93-7dd682c8e032}</Project>
       <Name>WP.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WP.Utillities\WP.Utillities.csproj">
+      <Project>{ff94a5ea-3698-423d-b742-d831e9f04c6c}</Project>
+      <Name>WP.Utillities</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

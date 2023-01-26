@@ -7,10 +7,10 @@ using WP.Model.Models;
 
 namespace WP.Repository.Interfaces
 {
-    public interface IAuthRepository
+    public interface IPostsRepository
     {
-        Task<bool> IsValid(string EmailId);
-        Task<string> Register(AuthModel auth);
-        bool Login(string username, string password);
+        Task<bool> IsValid(string pageName);
+        Task<string> CreatePage(PageModel page);
+
     }
 }

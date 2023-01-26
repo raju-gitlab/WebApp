@@ -90,7 +90,9 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Classes\AuthRepository.cs" />
+    <Compile Include="Classes\PostsRepository.cs" />
     <Compile Include="Interfaces\IAuthRepository.cs" />
+    <Compile Include="Interfaces\IPostsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

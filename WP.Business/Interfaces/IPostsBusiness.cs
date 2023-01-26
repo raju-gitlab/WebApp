@@ -7,10 +7,10 @@ using WP.Model.Models;
 
 namespace WP.Business.Interfaces
 {
-    public interface IAuthBusiness
+    public interface IPostsBusiness
     {
-        Task<bool> IsValid(string EmailId);
-        Task<string> Register(AuthModel auth);
-        bool Login(string username, string password);
+
+        Task<bool> IsValid(string pageName);
+        Task<string> CreatePage(PageModel page);
     }
 }

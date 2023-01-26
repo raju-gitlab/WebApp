@@ -10,21 +10,8 @@ namespace WebApp.API.Controllers
 {
     public class ValuesController : ApiController
     {
-        #region Consts
-        private readonly IAuthBusiness _authBusiness;
-        public ValuesController(IAuthBusiness authBusiness)
-        {
-            this._authBusiness = authBusiness;
-        }
-        #endregion
+
         // GET api/values
-        [HttpGet]
-        public bool Get()
-        
-        
-        {
-            return _authBusiness.isSuccess(); 
-        }
 
         // GET api/values/5
         public string Get(int id)

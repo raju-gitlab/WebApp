@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WP.Model", "WP.Model\WP.Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WP.Tests", "WP.Tests\WP.Tests.csproj", "{37DD2F42-6540-4FE8-856C-92881CA657AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WP.Utillities", "WP.Utillities\WP.Utillities.csproj", "{FF94A5EA-3698-423D-B742-D831E9F04C6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{37DD2F42-6540-4FE8-856C-92881CA657AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37DD2F42-6540-4FE8-856C-92881CA657AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37DD2F42-6540-4FE8-856C-92881CA657AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF94A5EA-3698-423D-B742-D831E9F04C6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF94A5EA-3698-423D-B742-D831E9F04C6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF94A5EA-3698-423D-B742-D831E9F04C6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF94A5EA-3698-423D-B742-D831E9F04C6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

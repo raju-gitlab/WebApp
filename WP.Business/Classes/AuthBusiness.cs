@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
+using WP.Model.Models;
 using WP.Repository.Interfaces;
 
 namespace WP.Business.Classes
@@ -18,9 +19,73 @@ namespace WP.Business.Classes
         }
 
         #endregion
-        public bool isSuccess()
+        #region GET
+        public async Task<bool> IsValid(string EmailId)
         {
-            return this._authRepository.Issuccess();
+            try
+            {
+                if(!string.IsNullOrEmpty(EmailId))
+                {
+                    if (await this._authRepository.IsValid(EmailId)) {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        public bool Login(string username, string password)
+        {
+            try
+            {
+                if(!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+                {
+                    return this._authRepository.Login(username, password);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                throw ex;
+
+            }
+        }
+
+        public async Task<string> Register(AuthModel auth)
+        {
+            try
+            {
+                if (!await this._authRepository.IsValid(auth.Email))
+                {
+                    return await this._authRepository.Register(auth);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+                throw;
+            }
+        }
+        #endregion
+
     }
 }
