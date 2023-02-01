@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WP.Model.Models;
 
-namespace WP.Repository.Interfaces
+namespace WP.Business.Interfaces
 {
-    public interface IPostsRepository
+    public interface IPagesBusiness
     {
+
         Task<bool> IsValid(string pageName);
         Task<string> CreatePage(PageModel page);
-
+        Task<string> ModifyPage(PageModifyModel page);
     }
 }

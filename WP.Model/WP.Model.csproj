@@ -46,6 +46,8 @@
     <Compile Include="Models\AuthModel.cs" />
     <Compile Include="Models\CommonModel.cs" />
     <Compile Include="Models\PageModel.cs" />
+    <Compile Include="Models\AttributesModel.cs" />
+    <Compile Include="Models\PostsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\LogManagerModel.cs" />
   </ItemGroup>

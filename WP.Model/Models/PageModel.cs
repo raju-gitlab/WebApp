@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,9 @@ namespace WP.Model.Models
 {
     public class PageModel
     {
-        public string OwnerId { get; set; } // Foreign Key Constraint
+        [Required]
+        public string OwnerId { get; set; }
+        [Required]
         public string PageName { get; set; }
         public string PageDescription { get; set; }
         public string ProfileImagePath { get; set; }
@@ -20,4 +23,14 @@ namespace WP.Model.Models
         public bool IsActivated { get; set; }
         public bool IsBlocked { get; set; }
     }
+    
+    public class PageModifyModel
+    {
+        public string PageName { get; set; }
+        public string PageDescription { get; set; }
+        public string ProfileImagePath { get; set; }
+        public bool IsActivated { get; set; }
+        public string PageUUID { get; set; }
+    }
+
 }

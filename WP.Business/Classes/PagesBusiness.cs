@@ -9,11 +9,11 @@ using WP.Repository.Interfaces;
 
 namespace WP.Business.Classes
 {
-    public class PostsBusiness : IPostsBusiness
+    public class PagesBusiness : IPagesBusiness
     {
         #region Consts
-        private readonly IPostsRepository _postsRepository;
-        public PostsBusiness(IPostsRepository postsRepository)
+        private readonly IPagesRepository _postsRepository;
+        public PagesBusiness(IPagesRepository postsRepository)
         {
             this._postsRepository = postsRepository;
         }
@@ -46,8 +46,6 @@ namespace WP.Business.Classes
         {
             try
             {
-                if(await this._postsRepository.IsValid(page.PageName))
-                {
                     string result = await this._postsRepository.CreatePage(page);
                     if (!string.IsNullOrEmpty(result))
                     {
@@ -57,13 +55,27 @@ namespace WP.Business.Classes
                     {
                         return null;
                     }
-                }
+                
             }
             catch (Exception ex)
             {
                 throw;
             }
             throw new NotImplementedException();
+        }
+        #endregion
+
+        #region Put
+        public async Task<string> ModifyPage(PageModifyModel page)
+        {
+            try
+            {
+                return await this._postsRepository.ModifyPage(page);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
         #endregion
     }

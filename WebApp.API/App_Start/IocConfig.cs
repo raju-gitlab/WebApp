@@ -18,8 +18,8 @@ namespace WebApp.API
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
             builder.RegisterType<AuthBusiness>().As<IAuthBusiness>();
             builder.RegisterType<AuthRepository>().As<IAuthRepository>();
-            builder.RegisterType<PostsBusiness>().As<IPostsBusiness>();
-            builder.RegisterType<PostsRepository>().As<IPostsRepository>();
+            builder.RegisterType<PagesBusiness>().As<IPagesBusiness>();
+            builder.RegisterType<PagesRepository>().As<IPagesRepository>();
             var container = builder.Build();
             var resoolver = new AutofacWebApiDependencyResolver(container);
             GlobalConfiguration.Configuration.DependencyResolver = resoolver;
