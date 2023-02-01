@@ -1,5 +1,4 @@
-﻿
-using Autofac;
+﻿using Autofac;
 using Autofac.Integration.WebApi;
 using System.Reflection;
 using System.Web.Http;
@@ -20,6 +19,8 @@ namespace WebApp.API
             builder.RegisterType<AuthRepository>().As<IAuthRepository>();
             builder.RegisterType<PagesBusiness>().As<IPagesBusiness>();
             builder.RegisterType<PagesRepository>().As<IPagesRepository>();
+            builder.RegisterType<PostsBusiness>().As<IPostsBusiness>();
+            builder.RegisterType<PostsRepository>().As<IPostsRepository>();
             var container = builder.Build();
             var resoolver = new AutofacWebApiDependencyResolver(container);
             GlobalConfiguration.Configuration.DependencyResolver = resoolver;

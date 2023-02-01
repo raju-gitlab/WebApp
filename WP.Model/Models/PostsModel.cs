@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace WP.Model.Models
 {
-    public class PostsModel
+    public class CreatePostModel : CommonModel
     {
-        public int Id { get; set; }
         public string PostTitle { get; set; }
         public string PostDescription { get; set; }
-        public int UserId { get; set; }
         public int PostCategory { get; set; }
+        public string PostCategoryName { get; set; }
         public int MediaVisibility { get; set; }
+        public string MediaVisibilityState { get; set; }
+        public string PostUUID { get; set; }
+        public string UserUUID { get; set; }
+        public HttpPostedFileBase File { get; set; }
+    }
+    public class PostsModel : CreatePostModel
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
         public string FilePath { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime ModifiedOn { get; set; }
         public long LikeCount { get; set; }
         public long DislikeCount { get; set; }
         public long SpamReportCount { get; set; }
-        public bool IsDeleted { get; set; }
         public bool IsBlocked { get; set; }
-        public string postUUID { get; set; }
     }
 }

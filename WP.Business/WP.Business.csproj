@@ -92,8 +92,10 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Classes\AuthBusiness.cs" />
     <Compile Include="Classes\PagesBusiness.cs" />
+    <Compile Include="Classes\PostsBusiness.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
     <Compile Include="Interfaces\IPagesBusiness.cs" />
+    <Compile Include="Interfaces\IPostsBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +110,10 @@
     <ProjectReference Include="..\WP.Repository\WP.Repository.csproj">
       <Project>{03fb6ae5-fbaa-4774-ad93-7dd682c8e032}</Project>
       <Name>WP.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WP.Utillities\WP.Utillities.csproj">
+      <Project>{FF94A5EA-3698-423D-B742-D831E9F04C6C}</Project>
+      <Name>WP.Utillities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
