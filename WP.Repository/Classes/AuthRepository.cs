@@ -17,6 +17,7 @@ namespace WP.Repository.Classes
         #endregion
 
         #region GET
+        #region IsValid
         public async Task<bool> IsValid(string EmailId)
         {
             try
@@ -26,7 +27,7 @@ namespace WP.Repository.Classes
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("@emailid", EmailId));
@@ -47,27 +48,30 @@ namespace WP.Repository.Classes
             }
         }
 
-        public bool Login(string username, string password)
+        #endregion
+
+        #region Login
+        public async Task<bool> Login(string username, string password)
         {
             try
             {
                 string query = "SELECT EXISTS (select Id from usertbl where FirstName = @fname)";
-                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"];
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
-                    con.Open();
+                    await con.OpenAsync();
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("@fname", username));
-                        if (Convert.ToInt32(cmd.ExecuteScalar()) == 1)
+                        if (Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 1)
                         {
-                            con.CloseAsync();
+                            await con.CloseAsync();
                             return true;
                         }
                         else
                         {
-                            con.CloseAsync();
+                            await con.CloseAsync();
                             return false;
                         }
                     }
@@ -79,8 +83,10 @@ namespace WP.Repository.Classes
             }
         }
         #endregion
+        #endregion
 
         #region POST
+        #region Register
         public async Task<string> Register(AuthModel auth)
         {
             try
@@ -95,7 +101,7 @@ namespace WP.Repository.Classes
                     await con.OpenAsync();
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
-                        //cmd.CommandType = CommandType.Text;
+                        cmd.CommandType = CommandType.Text;
                         cmd.Parameters.AddWithValue("@FirstName", auth.FirstName);
                         cmd.Parameters.AddWithValue("@LastName", auth.LastName);
                         cmd.Parameters.AddWithValue("@UserName", userName);
@@ -107,7 +113,7 @@ namespace WP.Repository.Classes
                         cmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@UUID", Guid.NewGuid().ToString());
-                        
+
                         if (await cmd.ExecuteNonQueryAsync() > 0)
                         {
                             await con.CloseAsync();
@@ -117,7 +123,7 @@ namespace WP.Repository.Classes
                         {
                             await con.CloseAsync();
                             return null;
-                        } 
+                        }
                     }
                 }
             }
@@ -126,6 +132,88 @@ namespace WP.Repository.Classes
                 return null;
             }
         }
+        #endregion
+        #endregion
+
+        #region PUT
+        #region UpdatePassword
+        public async Task<bool> UpdatePassword(AuthModifyModel authModify)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                string PasswordHash = "", PasswordSalt = "";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("", PasswordHash);
+                        cmd.Parameters.AddWithValue("", PasswordSalt);
+                        cmd.Parameters.AddWithValue("", DateTime.UtcNow);
+                        cmd.Parameters.Add(new MySqlParameter("", authModify.UserId));
+                        if(await cmd.ExecuteNonQueryAsync() > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region UpdateAccountDeatails
+        public async Task<bool> UpdateAccountDeatails(AccountModifyModel accountModify)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("", accountModify.ContactNumber);
+                        cmd.Parameters.AddWithValue("", accountModify.FirstName);
+                        cmd.Parameters.AddWithValue("", accountModify.LastName);
+                        cmd.Parameters.AddWithValue("", accountModify.UserName);
+                        cmd.Parameters.AddWithValue("@ModifyDate", DateTime.UtcNow);
+                        cmd.Parameters.Add(new MySqlParameter("", accountModify.UserId));
+                        if (await cmd.ExecuteNonQueryAsync() > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region UpdateProfileImage(Only)
+
+        #endregion
         #endregion
     }
 }

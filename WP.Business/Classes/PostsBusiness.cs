@@ -21,12 +21,12 @@ namespace WP.Business.Classes
         #endregion
 
         #region Post
-        public async Task<string> CreatePost(PostsModel posts)
+        public async Task<string> CreatePost(PostsViewModel posts)
         {
             try
             {
                 string result = await this._postsRepository.CreatePost(posts);
-                if(string.IsNullOrEmpty(result))
+                if(!string.IsNullOrEmpty(result))
                 {
                     return result;
                 }
@@ -52,37 +52,37 @@ namespace WP.Business.Classes
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> GetAllPosts()
+        public Task<List<PostsViewModel>> GetAllPosts()
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> GetAllPostsByPostCategory()
+        public Task<List<PostsViewModel>> GetAllPostsByPostCategory()
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> GetAllPostsByPostCategory(string category)
+        public Task<List<PostsViewModel>> GetAllPostsByPostCategory(string category)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> GetAllPostsByUserId(string UserId)
+        public Task<List<PostsViewModel>> GetAllPostsByUserId(string UserId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> GetPostsByCustomeFindAttributes()
+        public Task<List<PostsViewModel>> GetPostsByCustomeFindAttributes()
         {
             throw new NotImplementedException();
         }
 
-        public Task<PostsModel> UpdateExistingPost(PostsModel post)
+        public Task<PostsViewModel> UpdateExistingPost(PostsViewModel post)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsModel>> UserPosts(string UserId, string PageId)
+        public Task<List<PostsViewModel>> UserPosts(string UserId, string PageId)
         {
             throw new NotImplementedException();
         }

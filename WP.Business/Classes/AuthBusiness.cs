@@ -45,13 +45,13 @@ namespace WP.Business.Classes
             }
         }
 
-        public bool Login(string username, string password)
+        public async Task<bool> Login(string username, string password)
         {
             try
             {
-                if(!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 {
-                    return this._authRepository.Login(username, password);
+                    return await this._authRepository.Login(username, password);
                 }
                 else
                 {

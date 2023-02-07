@@ -22,9 +22,10 @@ namespace WebApp.API.Controllers
 
         #region Get
         [HttpGet]
-        public bool IsValid([FromUri]string email, [FromUri] string password)
+        public async Task<IHttpActionResult> IsValid([FromUri]string email, [FromUri] string password)
         {
-            return this._authBusiness.Login(email, password);
+            var result =  await this._authBusiness.Login(email, password);
+            return Ok(result);
         }
         #endregion
 

@@ -20,4 +20,18 @@ namespace WP.Model.Models
         public DateTime ModifiedDate { get; set; }
         public string UUID { get; set; }
     }
+    public class AuthModifyModel
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string UserId { get; set; }
+    }
+    public class AccountModifyModel
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string UserName { get; set; }
+        public long ContactNumber { get; set; }
+        public string UserId { get; set; }
+    }
 }

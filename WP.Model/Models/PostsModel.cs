@@ -12,21 +12,22 @@ namespace WP.Model.Models
         public string PostTitle { get; set; }
         public string PostDescription { get; set; }
         public int PostCategory { get; set; }
-        public string PostCategoryName { get; set; }
         public int MediaVisibility { get; set; }
         public string MediaVisibilityState { get; set; }
         public string PostUUID { get; set; }
         public string UserUUID { get; set; }
-        public HttpPostedFileBase File { get; set; }
+        public HttpPostedFileBase Files { get; set; }
     }
-    public class PostsModel : CreatePostModel
+    public class PostsViewModel : CreatePostModel
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
         public string FilePath { get; set; }
         public long LikeCount { get; set; }
         public long DislikeCount { get; set; }
         public long SpamReportCount { get; set; }
         public bool IsBlocked { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PostCategoryName { get; set; }
     }
 }

@@ -19,13 +19,16 @@ namespace WP.Repository.Classes
 
         #region GET
         #region GetAllPosts
-        public async Task<List<PostsModel>> GetAllPosts()
+        public async Task<List<PostsViewModel>> GetAllPosts()
         {
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "";
-                List<PostsModel> result = null;
+                string query = "SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Posts p"+
+                " INNER JOIN postcategories pg ON pg.Id = p.PostCategory " +
+                " INNER JOIN usertbl u ON u.Id = p.UserId " +
+                " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1 ORDER BY p.CreatedOn ASC";
+                List<PostsViewModel> result = null;
                 using(MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
@@ -35,7 +38,7 @@ namespace WP.Repository.Classes
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while(await rdr.ReadAsync())
                         {
-                            result.Add(new PostsModel
+                            result.Add(new PostsViewModel
                             {
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
@@ -73,11 +76,11 @@ namespace WP.Repository.Classes
         #endregion
 
         #region GetAllPostsByUserId
-        public async Task<List<PostsModel>> GetAllPostsByUserId(string UserId)
+        public async Task<List<PostsViewModel>> GetAllPostsByUserId(string UserId)
         {
             try
             {
-                List<PostsModel> result = null;
+                List<PostsViewModel> result = null;
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
                 using(MySqlConnection con = new MySqlConnection(ConnectionString))
@@ -89,7 +92,7 @@ namespace WP.Repository.Classes
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while (await rdr.ReadAsync())
                         {
-                            result.Add(new PostsModel
+                            result.Add(new PostsViewModel
                             {
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
@@ -119,13 +122,13 @@ namespace WP.Repository.Classes
         #endregion
 
         #region GetAllPostsByPostCategory
-        public async Task<List<PostsModel>> GetAllPostsByPostCategory(string category)
+        public async Task<List<PostsViewModel>> GetAllPostsByPostCategory(string category)
         {
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                List<PostsModel> result = null;
+                List<PostsViewModel> result = null;
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
@@ -136,7 +139,7 @@ namespace WP.Repository.Classes
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while (await rdr.ReadAsync())
                         {
-                            result.Add(new PostsModel
+                            result.Add(new PostsViewModel
                             {
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
@@ -167,13 +170,13 @@ namespace WP.Repository.Classes
         #endregion
 
         #region UserPosts
-        public async Task<List<PostsModel>> UserPosts(string UserId, string PageId)
+        public async Task<List<PostsViewModel>> UserPosts(string UserId, string PageId)
         {
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                List<PostsModel> result = null;
+                List<PostsViewModel> result = null;
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
@@ -184,7 +187,7 @@ namespace WP.Repository.Classes
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while (await rdr.ReadAsync())
                         {
-                            result.Add(new PostsModel
+                            result.Add(new PostsViewModel
                             {
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
@@ -215,7 +218,7 @@ namespace WP.Repository.Classes
         #endregion
 
         #region MyRegion
-        public async Task<List<PostsModel>> GetPostsByCustomeFindAttributes()
+        public async Task<List<PostsViewModel>> GetPostsByCustomeFindAttributes()
         {
             throw new NotImplementedException();
         }
@@ -225,7 +228,7 @@ namespace WP.Repository.Classes
 
         #region Post
         #region CreateNewPost
-        public async Task<string> CreatePost(PostsModel posts)
+        public async Task<string> CreatePost(PostsViewModel posts)
         {
             try
             {
@@ -240,7 +243,7 @@ namespace WP.Repository.Classes
                     using (cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add(new MySqlParameter("userId", posts.UserId));
+                        cmd.Parameters.Add(new MySqlParameter("userId", posts.UserUUID));
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         if (await rdr.ReadAsync())
                         {
@@ -252,7 +255,8 @@ namespace WP.Repository.Classes
                         {
                             using (con = new MySqlConnection(ConnectionString))
                             {
-                                query = "";
+                                query = "insert into posts (PostTitle, PostDescription, UserId, PostCategory, MediaVisibility, FilePath, CreatedOn, ModifiedOn, LikeCount, DislikeCount, SpamReportCount, IsBlocked, PostUUID)"+
+                                " VALUES(@PostTitle, @PostDescription, @UserId, @PostCategory, @MediaVisibility, @FilePath, @CreatedOn, @ModifiedOn, @LikeCount, @DislikeCount, @SpamReportCount, @IsBlocked, @PostUUID)";
                                 UUID = Guid.NewGuid().ToString();
                                 await con.OpenAsync();
                                 using (cmd = new MySqlCommand(query, con))
@@ -262,15 +266,15 @@ namespace WP.Repository.Classes
                                     cmd.Parameters.AddWithValue("@PostDescription", posts.PostDescription);
                                     cmd.Parameters.AddWithValue("@PostCategory", posts.PostCategory);
                                     cmd.Parameters.AddWithValue("@UserId", userid);
-                                    cmd.Parameters.AddWithValue("@CreatedDate", DateTime.UtcNow);
-                                    cmd.Parameters.AddWithValue("@ModifiedDate", DateTime.UtcNow);
+                                    cmd.Parameters.AddWithValue("@CreatedOn", DateTime.UtcNow);
+                                    cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
                                     cmd.Parameters.AddWithValue("@LikeCount", 0);
+                                    cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
                                     cmd.Parameters.AddWithValue("@MediaVisibility", posts.MediaVisibility);
-                                    cmd.Parameters.AddWithValue("@PostCategory", posts.PostCategory);
-                                    cmd.Parameters.AddWithValue("@SpamReportCount", 0);
                                     cmd.Parameters.AddWithValue("@PostUUID", UUID);
-                                    cmd.Parameters.AddWithValue("@", posts);
-                                    cmd.Parameters.AddWithValue("@", posts);
+                                    cmd.Parameters.AddWithValue("@SpamReportCount", 0);
+                                    cmd.Parameters.AddWithValue("@IsBlocked", false);
+                                    cmd.Parameters.AddWithValue("@FilePath", false);
 
                                     if (await cmd.ExecuteNonQueryAsync() > 0)
                                     {
@@ -305,7 +309,7 @@ namespace WP.Repository.Classes
         #endregion
 
         #region PUT
-        public async Task<PostsModel> UpdateExistingPost(CreatePostModel post)
+        public async Task<PostsViewModel> UpdateExistingPost(CreatePostModel post)
         {
             try
             {

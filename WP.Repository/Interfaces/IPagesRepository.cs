@@ -12,6 +12,6 @@ namespace WP.Repository.Interfaces
         Task<bool> IsValid(string pageName);
         Task<string> CreatePage(PageModel page);
         Task<string> ModifyPage(PageModifyModel page);
-
+        //Task<bool> DeltePage(string UserId, string PageId);
     }
 }

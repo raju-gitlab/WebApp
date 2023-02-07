@@ -52,13 +52,26 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PostsTests\PostsFunctionsTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebApp.API\WebApp.API.csproj">
+      <Project>{5680741E-9E81-40B6-B447-4CC7A83FC769}</Project>
+      <Name>WebApp.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WP.Model\WP.Model.csproj">
+      <Project>{00D93E1B-B8BC-4676-A76E-13BA98F6314A}</Project>
+      <Name>WP.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
