@@ -19,6 +19,76 @@ namespace WP.Repository.Classes
         public string userid { get; set; }
         #endregion
 
+        #region Get
+        #region Listallpages
+        public async Task<List<PageModel>> ListPages()
+        {
+            try
+            {
+                List<PageModel> results = new List<PageModel>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        DbDataReader reader = await cmd.ExecuteReaderAsync();
+                        while(await reader.ReadAsync())
+                        {
+                            results.Add(new PageModel
+                            {
+                                PageName = (string.IsNullOrEmpty(reader["PageName"].ToString()) ? reader["PageDescription"].ToString() : "Unknown alias"),
+                                PageDescription = (string.IsNullOrEmpty(reader["PageDescription"].ToString()) ? reader["PageDescription"].ToString() : "Unknown alias"),
+                                //ProfileImagePath = (string.IsNullOrEmpty(reader["ProfileImagePath"].ToString()) ? reader["ProfileImagePath"].ToString() : "no img"),
+                                PageUUID = (string.IsNullOrEmpty(reader["PageUUID"].ToString()) ? reader["PageUUID"].ToString() : null),
+                                OwnerId = (string.IsNullOrEmpty(reader["OwnerId"].ToString()) ? reader["OwnerId"].ToString() : null),
+                                CreatedDate = (string.IsNullOrEmpty(reader["CreatedDate"].ToString()) ? DateTime.Parse(reader["CreatedDate"].ToString()) : DateTime.Parse(null)),
+                                ModifiedDate = (string.IsNullOrEmpty(reader["ModifiedDate"].ToString()) ? DateTime.Parse(reader["ModifiedDate"].ToString()) : DateTime.Parse(null)),
+                                Subscribers = Convert.ToInt64(reader["Subscribers"].ToString()),
+                                LikesCount = Convert.ToInt64(reader["LikeCount"].ToString()),
+                                IsActivated = Convert.ToBoolean(reader["IsActivated"].ToString())
+                            });
+                        }
+                    }
+
+                    await con.CloseAsync();
+                }
+
+                if(results.Count != 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return results;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region ListPagesbyfilter
+        public async Task<List<PageModel>> ListPagesbyfilter(string[] filters)
+        {
+            try
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+        #endregion
+
         public async Task<bool> IsValid(string pageName)
         {
             try
@@ -82,7 +152,7 @@ namespace WP.Repository.Classes
                                     commmand.Parameters.AddWithValue("@OwnerId", Convert.ToInt32(userid));
                                     commmand.Parameters.AddWithValue("@PageName", page.PageName);
                                     commmand.Parameters.AddWithValue("@PageDescription", page.PageDescription);
-                                    commmand.Parameters.AddWithValue("@ProfileImagePath", page.ProfileImagePath);
+                                    //commmand.Parameters.AddWithValue("@ProfileImagePath", page.ProfileImagePath);
                                     commmand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
                                     commmand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
                                     commmand.Parameters.AddWithValue("@PageUUID", UUID);

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace WP.Model.Models
 {
@@ -14,14 +15,18 @@ namespace WP.Model.Models
         [Required]
         public string PageName { get; set; }
         public string PageDescription { get; set; }
-        public string ProfileImagePath { get; set; }
+        //public string ProfileImagePath { get; set; }
         public long Subscribers { get; set; }
         public long LikesCount { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
-        public DateTime PageUUID { get; set; }
+        public string PageUUID { get; set; }
         public bool IsActivated { get; set; }
         public bool IsBlocked { get; set; }
+        public string PrivacyType { get; set; }
+        public string CategoryType { get; set; }
+        public HttpPostedFileBase ProfileImagePath { get; set; }
+
     }
     
     public class PageModifyModel

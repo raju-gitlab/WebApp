@@ -20,6 +20,7 @@ namespace WP.Business.Classes
         #endregion
 
         #region Get
+        #region Check validity
         public async Task<bool> IsValid(string pageName)
         {
             try
@@ -38,6 +39,37 @@ namespace WP.Business.Classes
                 throw;
             }
         }
+        #endregion
+
+        #region GetAllPages
+        public async Task<List<PageModel>> ListPages()
+        {
+            try
+            {
+                return await this._postsRepository.ListPages();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region ListPagesbyfilterMyRegion
+        public async Task<List<PageModel>> ListPagesbyfilter(string[] filters)
+        {
+            try
+            {
+                return await this._postsRepository.ListPagesbyfilter(filters);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
 
         #endregion
 

@@ -22,6 +22,34 @@ namespace WebApp.API.Controllers
         }
         #endregion
 
+        #region Get
+        [HttpGet]
+        public async Task<IHttpActionResult> AllPages()
+        {
+            try
+            {
+                List<PageModel> result = await this._postsBusiness.ListPages();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<IHttpActionResult> Pages(string[] category)
+        {
+            try
+            {
+                List<PageModel> result = await this._postsBusiness.ListPagesbyfilter(category);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region POST
         [HttpPost]
         public async Task<IHttpActionResult> CreatePage([FromBody] PageModel pages)

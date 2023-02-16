@@ -91,11 +91,15 @@
     <Compile Include="app_configs\IocConfig.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Classes\AuthBusiness.cs" />
+    <Compile Include="Classes\BlogBusiness.cs" />
+    <Compile Include="Classes\Misc\MiscBusiness.cs" />
     <Compile Include="Classes\PagesBusiness.cs" />
     <Compile Include="Classes\PostsBusiness.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
+    <Compile Include="Interfaces\IBlogBusiness.cs" />
     <Compile Include="Interfaces\IPagesBusiness.cs" />
     <Compile Include="Interfaces\IPostsBusiness.cs" />
+    <Compile Include="Interfaces\Misc\IMiscBusiness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
