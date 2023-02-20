@@ -20,4 +20,10 @@ namespace WP.Model.Utilities
         public string PrivacyType { get; set; }
         public string PrivacyUUID { get; set; }
     }
+    public class ListIds
+    {
+        public int Userserialid { get; set; }
+        public int IdTypeTwo { get; set; }
+        public int IdTypeThree { get; set; }
+    }
 }

@@ -20,6 +20,7 @@ namespace WP.Repository.Classes
         #endregion
 
         #region Get
+
         #region Listallpages
         public async Task<List<PageModel>> ListPages()
         {
@@ -73,6 +74,95 @@ namespace WP.Repository.Classes
         }
         #endregion
 
+        #region PageById
+        public async Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId)
+        {
+            try
+            {
+                Tuple<PageModel, List<PostsViewModel>> result = new Tuple<PageModel, List<PostsViewModel>>(new PageModel(), new List<PostsViewModel>());
+                List<PageModel> list = new List<PageModel>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    string query = "SELECT p.PageName, p.PageDescription, p.ProfileImagePath, p.PageUUID, c.CategoryName, p.CreatedDate,p.IsActived, p.LikesCount,p.Subscribers, pc.PrivacyType, p.IsBlocked"+
+                    " FROM pages p"+
+                    " inner join categories c on c.Id = p.PageType"+
+                    " inner join privacycategory pc on pc.Id = p.Privacytype"+
+                    " where p.PageUUID = @pageId";
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@pageId", PageId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            result.Item1.PageName = (!string.IsNullOrEmpty(rdr["PageName"].ToString()) ? rdr["PageName"].ToString() : null);
+                            result.Item1.PageDescription = (!string.IsNullOrEmpty(rdr["PageDescription"].ToString()) ? rdr["PageDescription"].ToString() : null);
+                            result.Item1.ProfileImagePath = (!string.IsNullOrEmpty(rdr["ProfileImagePath"].ToString()) ? rdr["ProfileImagePath"].ToString() : null);
+                            result.Item1.PageUUID = (!string.IsNullOrEmpty(rdr["PageUUID"].ToString()) ? rdr["PageUUID"].ToString() : null);
+                            result.Item1.CategoryType = (!string.IsNullOrEmpty(rdr["CategoryName"].ToString()) ? rdr["CategoryName"].ToString() : null);
+                            result.Item1.CreatedDate = (!string.IsNullOrEmpty(rdr["CreatedDate"].ToString()) ? DateTime.Parse(rdr["CreatedDate"].ToString()) : DateTime.MinValue);
+                            result.Item1.IsActivated = (!string.IsNullOrEmpty(rdr["IsActived"].ToString()) ? Convert.ToBoolean(rdr["IsActived"].ToString()) : false);
+                            result.Item1.LikesCount = (!string.IsNullOrEmpty(rdr["LikesCount"].ToString()) ? Convert.ToInt64(rdr["LikesCount"].ToString()) : 0);
+                            result.Item1.Subscribers = (!string.IsNullOrEmpty(rdr["Subscribers"].ToString()) ? Convert.ToInt64(rdr["Subscribers"].ToString()) : 0);
+                            result.Item1.PrivacyType= (!string.IsNullOrEmpty(rdr["PrivacyType"].ToString()) ? Convert.ToString(rdr["PrivacyType"].ToString()) : null);
+                            result.Item1.IsBlocked = (!string.IsNullOrEmpty(rdr["IsBlocked"].ToString()) ? Convert.ToBoolean(rdr["IsBlocked"].ToString()) : true);
+                        }
+                    }
+                    await con.CloseAsync();
+                    if(result.Item1 == null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        query = "SELECT p.PostTitle, p.PostDescription, c.CategoryName,  p.CreatedOn, p.LikeCount, p.DislikeCount, p.FilePath, p.PostUUID, p.UserId"+
+                        " FROM posts p"+
+                        " inner join categories c on c.Id = p.PostCategory"+
+                        " where p.MediaVisibility != 2 and p.MediaVisibility != 3";
+                        await con.OpenAsync();
+                        using (MySqlCommand cmd = new MySqlCommand(query, con))
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            //cmd.Parameters.Add(new MySqlParameter("@", PageId));
+                            DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                            while(await rdr.ReadAsync())
+                            {
+                                result.Item2.Add(new PostsViewModel
+                                {
+                                    PostTitle = !string.IsNullOrEmpty(rdr["PostTitle"].ToString()) ? rdr["PostTitle"].ToString() : null,
+                                    PostDescription = !string.IsNullOrEmpty(rdr["PostDescription"].ToString()) ? rdr["PostDescription"].ToString() : null,
+                                    PostCategoryName = !string.IsNullOrEmpty(rdr["CategoryName"].ToString()) ? rdr["CategoryName"].ToString() : null,
+                                    CreatedDate = !string.IsNullOrEmpty(rdr["CreatedOn"].ToString()) ? DateTime.Parse(rdr["CreatedOn"].ToString()) : DateTime.MinValue,
+                                    LikeCount = !string.IsNullOrEmpty(rdr["LikeCount"].ToString()) ? Convert.ToInt64(rdr["LikeCount"].ToString()) : 0,
+                                    DislikeCount = !string.IsNullOrEmpty(rdr["DislikeCount"].ToString()) ? Convert.ToInt64(rdr["DislikeCount"].ToString()) : 0,
+                                    FilePath = !string.IsNullOrEmpty(rdr["FilePath"].ToString()) ? rdr["FilePath"].ToString() : null,
+                                    PostUUID = !string.IsNullOrEmpty(rdr["PostUUID"].ToString()) ? rdr["PostUUID"].ToString() : null,
+                                    UserUUID = !string.IsNullOrEmpty(rdr["UserId"].ToString()) ? rdr["UserId"].ToString() : null
+                                });
+                            }
+                            await con.CloseAsync();
+                        }
+                    }
+                }
+                if(result != null)
+                {
+                    return result;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #region ListPagesbyfilter
         public async Task<List<PageModel>> ListPagesbyfilter(string[] filters)
         {
@@ -87,8 +177,10 @@ namespace WP.Repository.Classes
             }
         }
         #endregion
+
         #endregion
 
+        #region Check Name Validity
         public async Task<bool> IsValid(string pageName)
         {
             try
@@ -99,11 +191,11 @@ namespace WP.Repository.Classes
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("@pagename", pageName));
-                        if(Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 1)
+                        if (Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 1)
                         {
                             await con.CloseAsync();
                             return true;
@@ -115,62 +207,49 @@ namespace WP.Repository.Classes
                         }
                     }
                 }
-             }
+            }
             catch (Exception ex)
             {
 
                 throw ex;
             }
         }
+        #endregion
 
+        #region Post
+
+        #region CreatePage
         public async Task<string> CreatePage(PageModel page)
         {
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string q1 = "select Id as UserId from usertbl where UserGuid = @userId";
-                string query = "INSERT INTO pages(OwnerId, PageName, PageDescription, ProfileImagePath, Subscribers, LikesCount, CreatedDate, ModifiedDate, PageUUID, IsActived, IsBlocked) VALUES (@OwnerId, @PageName, @PageDescription, @ProfileImagePath, @Subscribers, @LikesCount,@CreatedDate, @ModifiedDate, @PageUUID, @IsActived, @IsBlocked)";
-                
-                using (MySqlConnection con = new MySqlConnection(ConnectionString)) 
+                string query = "INSERT INTO pages(OwnerId, PageName, PageDescription, ProfileImagePath, Subscribers, LikesCount, CreatedDate, ModifiedDate, PageUUID, IsActived, IsBlocked, PrivacyType, Pagetype) VALUES (@OwnerId, @PageName, @PageDescription, @ProfileImagePath, @Subscribers, @LikesCount,@CreatedDate, @ModifiedDate, @PageUUID, @IsActived, @IsBlocked, @PrivacyType, @Pagetype)";
+
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(q1, con))
+                    using (MySqlCommand commmand = new MySqlCommand(query, con))
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add(new MySqlParameter("@userid", page.OwnerId));
-                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
-                        if(rdr.Read())
-                        {
-                            userid = rdr["UserId"].ToString();
-                            await con.CloseAsync();
-                            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
-                            {
-                                await connection.OpenAsync();
-                                UUID = Guid.NewGuid().ToString();
-                                using (MySqlCommand commmand = new MySqlCommand(query, connection))
-                                {
-                                    commmand.Parameters.AddWithValue("@OwnerId", Convert.ToInt32(userid));
-                                    commmand.Parameters.AddWithValue("@PageName", page.PageName);
-                                    commmand.Parameters.AddWithValue("@PageDescription", page.PageDescription);
-                                    //commmand.Parameters.AddWithValue("@ProfileImagePath", page.ProfileImagePath);
-                                    commmand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
-                                    commmand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
-                                    commmand.Parameters.AddWithValue("@PageUUID", UUID);
-                                    commmand.Parameters.AddWithValue("@Subscribers", 0);
-                                    commmand.Parameters.AddWithValue("@LikesCount", 0);
-                                    commmand.Parameters.AddWithValue("@IsActived", 1);
-                                    commmand.Parameters.AddWithValue("@IsBlocked", 0);
+                        commmand.CommandType = CommandType.Text;
+                        UUID = Guid.NewGuid().ToString();
+                        commmand.Parameters.AddWithValue("@OwnerId", page.Userserialid);
+                        commmand.Parameters.AddWithValue("@PageName", page.PageName);
+                        commmand.Parameters.AddWithValue("@PageDescription", page.PageDescription);
+                        commmand.Parameters.AddWithValue("@ProfileImagePath", page.ProfileImagePath);
+                        commmand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
+                        commmand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
+                        commmand.Parameters.AddWithValue("@PageUUID", UUID);
+                        commmand.Parameters.AddWithValue("@Subscribers", 0);
+                        commmand.Parameters.AddWithValue("@LikesCount", 0);
+                        commmand.Parameters.AddWithValue("@IsActived", 1);
+                        commmand.Parameters.AddWithValue("@IsBlocked", 0);
+                        commmand.Parameters.AddWithValue("@PrivacyType", page.IdTypeThree);
+                        commmand.Parameters.AddWithValue("@Pagetype", page.IdTypeTwo);
 
-                                    if(await commmand.ExecuteNonQueryAsync() > 0)
-                                    {
-                                        return UUID;
-                                    }
-                                    else
-                                    {
-                                        return null;
-                                    }
-                                }
-                            }
+                        if (await commmand.ExecuteNonQueryAsync() > 0)
+                        {
+                            return UUID;
                         }
                         else
                         {
@@ -184,7 +263,10 @@ namespace WP.Repository.Classes
 
                 throw;
             }
-        }
+        }  
+        #endregion
+        
+        #endregion
 
         public async Task<string> ModifyPage(PageModifyModel page)
         {
@@ -223,5 +305,40 @@ namespace WP.Repository.Classes
                 throw;
             }
         }
+
+        #region Delete
+        #region DeletePage
+        public async Task<bool> DeletePage(string UserId, string PageId)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@userid", UserId));
+                        cmd.Parameters.Add(new MySqlParameter("@pageid", PageId));
+                        if (await cmd.ExecuteNonQueryAsync() != 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+        #endregion
     }
 }

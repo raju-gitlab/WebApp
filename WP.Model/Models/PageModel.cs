@@ -5,17 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using WP.Model.Utilities;
 
 namespace WP.Model.Models
 {
-    public class PageModel
+    public class PageModel : ListIds
     {
-        [Required]
         public string OwnerId { get; set; }
-        [Required]
         public string PageName { get; set; }
         public string PageDescription { get; set; }
-        //public string ProfileImagePath { get; set; }
+        public string ProfileImagePath { get; set; }
         public long Subscribers { get; set; }
         public long LikesCount { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -25,7 +24,6 @@ namespace WP.Model.Models
         public bool IsBlocked { get; set; }
         public string PrivacyType { get; set; }
         public string CategoryType { get; set; }
-        public HttpPostedFileBase ProfileImagePath { get; set; }
 
     }
     

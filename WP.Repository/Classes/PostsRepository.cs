@@ -232,67 +232,37 @@ namespace WP.Repository.Classes
         {
             try
             {
+                UUID = Guid.NewGuid().ToString();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "";
-                MySqlCommand cmd = null;
-                MySqlConnection con = null;
-                using (con = new MySqlConnection(ConnectionString))
+                string query = "insert into posts (PostTitle, PostDescription, UserId, PostCategory, MediaVisibility, FilePath, CreatedOn, ModifiedOn, LikeCount, DislikeCount, SpamReportCount, IsBlocked, PostUUID)" +
+                                " VALUES(@PostTitle, @PostDescription, @UserId, @PostCategory, @MediaVisibility, @FilePath, @CreatedOn, @ModifiedOn, @LikeCount, @DislikeCount, @SpamReportCount, @IsBlocked, @PostUUID)";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
-                    query = "SELECT Id from  usertbl where UserGuid = @userId";
                     await con.OpenAsync();
-                    using (cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add(new MySqlParameter("userId", posts.UserUUID));
-                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
-                        if (await rdr.ReadAsync())
+                        cmd.Parameters.AddWithValue("@PostTitle", posts.PostTitle);
+                        cmd.Parameters.AddWithValue("@PostDescription", posts.PostDescription);
+                        cmd.Parameters.AddWithValue("@PostCategory", posts.IdTypeTwo);
+                        cmd.Parameters.AddWithValue("@UserId", posts.Userserialid);
+                        cmd.Parameters.AddWithValue("@CreatedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("@LikeCount", 0);
+                        cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
+                        cmd.Parameters.AddWithValue("@MediaVisibility", posts.IdTypeThree);
+                        cmd.Parameters.AddWithValue("@PostUUID", UUID);
+                        cmd.Parameters.AddWithValue("@SpamReportCount", 0);
+                        cmd.Parameters.AddWithValue("@IsBlocked", false);
+                        cmd.Parameters.AddWithValue("@FilePath", false);
+                        if (await cmd.ExecuteNonQueryAsync() > 0)
                         {
-                            userid = rdr["Id"].ToString();
-                        }
-
-                        await con.CloseAsync();
-                        if (!string.IsNullOrEmpty(userid))
-                        {
-                            using (con = new MySqlConnection(ConnectionString))
-                            {
-                                query = "insert into posts (PostTitle, PostDescription, UserId, PostCategory, MediaVisibility, FilePath, CreatedOn, ModifiedOn, LikeCount, DislikeCount, SpamReportCount, IsBlocked, PostUUID)"+
-                                " VALUES(@PostTitle, @PostDescription, @UserId, @PostCategory, @MediaVisibility, @FilePath, @CreatedOn, @ModifiedOn, @LikeCount, @DislikeCount, @SpamReportCount, @IsBlocked, @PostUUID)";
-                                UUID = Guid.NewGuid().ToString();
-                                await con.OpenAsync();
-                                using (cmd = new MySqlCommand(query, con))
-                                {
-                                    cmd.CommandType = CommandType.Text;
-                                    cmd.Parameters.AddWithValue("@PostTitle", posts.PostTitle);
-                                    cmd.Parameters.AddWithValue("@PostDescription", posts.PostDescription);
-                                    cmd.Parameters.AddWithValue("@PostCategory", posts.PostCategory);
-                                    cmd.Parameters.AddWithValue("@UserId", userid);
-                                    cmd.Parameters.AddWithValue("@CreatedOn", DateTime.UtcNow);
-                                    cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
-                                    cmd.Parameters.AddWithValue("@LikeCount", 0);
-                                    cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
-                                    cmd.Parameters.AddWithValue("@MediaVisibility", posts.MediaVisibility);
-                                    cmd.Parameters.AddWithValue("@PostUUID", UUID);
-                                    cmd.Parameters.AddWithValue("@SpamReportCount", 0);
-                                    cmd.Parameters.AddWithValue("@IsBlocked", false);
-                                    cmd.Parameters.AddWithValue("@FilePath", false);
-
-                                    if (await cmd.ExecuteNonQueryAsync() > 0)
-                                    {
-                                        return UUID;
-                                    }
-                                    else
-                                    {
-                                        return null;
-                                    }
-                                }
-                            }
+                            return UUID;
                         }
                         else
                         {
-                            await con.CloseAsync();
                             return null;
                         }
-
                     }
                 }
 
@@ -418,6 +388,11 @@ namespace WP.Repository.Classes
             {
                 throw;
             }
+        }
+
+        public Task<string> CreatePagePost(PostsViewModel posts)
+        {
+            throw new NotImplementedException();
         }
         #endregion
         #endregion

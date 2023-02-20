@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
+using WP.Repository.Interfaces.Misc;
 
 namespace WP.Business.Classes
 {
@@ -13,9 +14,11 @@ namespace WP.Business.Classes
     {
         #region Consts
         private readonly IPagesRepository _postsRepository;
-        public PagesBusiness(IPagesRepository postsRepository)
+        private readonly IMiscRepository _miscRepository;
+        public PagesBusiness(IPagesRepository postsRepository, IMiscRepository miscRepository)
         {
             this._postsRepository = postsRepository;
+            this._miscRepository = miscRepository;
         }
         #endregion
 
@@ -56,6 +59,29 @@ namespace WP.Business.Classes
         }
         #endregion
 
+        #region PageById
+        public async Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId)
+        {
+            try
+            {
+                var result = await this._postsRepository.PageById(PageId);
+                if(result != null)
+                {
+                    return result;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #region ListPagesbyfilterMyRegion
         public async Task<List<PageModel>> ListPagesbyfilter(string[] filters)
         {
@@ -74,27 +100,51 @@ namespace WP.Business.Classes
         #endregion
 
         #region Post
+        #region Create page
         public async Task<string> CreatePage(PageModel page)
         {
             try
             {
-                    string result = await this._postsRepository.CreatePage(page);
-                    if (!string.IsNullOrEmpty(result))
+                if (!await this._postsRepository.IsValid(page.PageName))
+                {
+                    page.Userserialid = await this._miscRepository.GetUserId(page.OwnerId);
+                    page.IdTypeTwo = await this._miscRepository.GetCategoryId(page.CategoryType);
+                    page.IdTypeThree = await this._miscRepository.GetPrivacyId(page.PrivacyType);
+
+                    if (page.Userserialid == -1)
                     {
-                        return result;
+                        return "User not found";
+                    }
+                    else if (page.IdTypeTwo == -1)
+                    {
+                        return "Category not found";
+
+                    }
+                    else if (page.IdTypeThree == -1)
+                    {
+                        return "Privacy type not found";
                     }
                     else
                     {
-                        return null;
+                        string result = await this._postsRepository.CreatePage(page);
+                        if (!string.IsNullOrEmpty(result))
+                        {
+                            return result;
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
-                
+                }
             }
             catch (Exception ex)
             {
                 throw;
             }
             throw new NotImplementedException();
-        }
+        } 
+        #endregion
         #endregion
 
         #region Put
@@ -109,6 +159,36 @@ namespace WP.Business.Classes
                 throw;
             }
         }
+        #endregion
+
+        #region Delete
+        #region DeletePage
+        public async Task<bool> DeletePage(string UserId, string PageId)
+        {
+            try
+            {
+                if(await this._postsRepository.DeletePage(UserId, PageId))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        Task<Tuple<PageModel, List<PostsViewModel>>> IPagesBusiness.PageById(string PageId)
+        {
+            return this._postsRepository.PageById(PageId);
+            throw new NotImplementedException();
+        }
+        #endregion
         #endregion
     }
 }

@@ -14,6 +14,7 @@ namespace WP.Business.Interfaces
         Task<List<PostsViewModel>> GetAllPostsByPostCategory(string category);
         Task<List<PostsViewModel>> GetPostsByCustomeFindAttributes();
         Task<string> CreatePost(PostsViewModel posts);
+        Task<string> CreatePagePost(PostsViewModel posts);
         Task<List<PostsViewModel>> UserPosts(string UserId, string PageId);
         Task<PostsViewModel> UpdateExistingPost(PostsViewModel post);
         Task<bool> DeletePost(string PostId, string UserId);

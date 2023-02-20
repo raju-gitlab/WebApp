@@ -110,6 +110,10 @@
       <Project>{00D93E1B-B8BC-4676-A76E-13BA98F6314A}</Project>
       <Name>WP.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WP.Utillities\WP.Utillities.csproj">
+      <Project>{ff94a5ea-3698-423d-b742-d831e9f04c6c}</Project>
+      <Name>WP.Utillities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />

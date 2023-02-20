@@ -10,10 +10,11 @@ namespace WP.Repository.Interfaces
     public interface IPagesRepository
     {
         Task<List<PageModel>> ListPages();
+        Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId);
         Task<List<PageModel>> ListPagesbyfilter(string[] filters);
         Task<bool> IsValid(string pageName);
         Task<string> CreatePage(PageModel page);
         Task<string> ModifyPage(PageModifyModel page);
-        //Task<bool> DeltePage(string UserId, string PageId);
+        Task<bool> DeletePage(string UserId, string PageId);
     }
 }

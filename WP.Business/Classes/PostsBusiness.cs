@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
+using WP.Repository.Interfaces.Misc;
 using WP.Utillities.Exceptions;
 
 namespace WP.Business.Classes
@@ -14,26 +15,32 @@ namespace WP.Business.Classes
     {
         #region Consts
         private readonly IPostsRepository _postsRepository;
-        public PostsBusiness(IPostsRepository postsRepository)
+        private readonly IMiscRepository _miscRepository;
+        public PostsBusiness(IPostsRepository postsRepository, IMiscRepository miscRepository)
         {
             this._postsRepository = postsRepository;
+            this._miscRepository = miscRepository;
         }
         #endregion
 
         #region Post
+        #region Create post
         public async Task<string> CreatePost(PostsViewModel posts)
         {
             try
             {
+                posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
+                posts.IdTypeTwo = await this._miscRepository.GetCategoryId(posts.PostUUID);
+                posts.IdTypeThree = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
                 string result = await this._postsRepository.CreatePost(posts);
-                if(!string.IsNullOrEmpty(result))
+                if (!string.IsNullOrEmpty(result))
                 {
                     return result;
                 }
                 else
                 {
                     return null;
-                } 
+                }
             }
             catch (Exception ex)
             {
@@ -41,6 +48,18 @@ namespace WP.Business.Classes
                 throw;
             }
         }
+        #endregion
+
+        #region MyRegion
+        public async Task<string> CreatePagePost(PostsViewModel posts)
+        {
+            posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
+            posts.IdTypeTwo = await this._miscRepository.GetCategoryId(posts.PostUUID);
+            posts.IdTypeThree = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
+            throw new Exception();
+        }
+
+        #endregion
 
         public Task<bool> DeletePagePost(string pageId, string PostId)
         {

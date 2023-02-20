@@ -69,7 +69,7 @@ namespace WebApp.API.Controllers
             }
         }
         [HttpPost]
-        public IHttpActionResult TestApi(HttpPostedFileBase test)
+        public IHttpActionResult UpdatePost(HttpPostedFileBase test)
         {
             return Ok("");
         }

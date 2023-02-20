@@ -7,6 +7,7 @@ using System.Data;
 using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
+using WP.Utillities.Encryption;
 
 namespace WP.Repository.Classes
 {
@@ -91,11 +92,12 @@ namespace WP.Repository.Classes
         {
             try
             {
-                string s = "dd";
+                string salt = Encryption.getSalt();
+                string pass = Encryption.getHash(salt+auth.Password);
                 userName = (auth.Email.Split('@')[0].Length < 5) ? auth.Email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Replace('-', 'm').Substring(0, 5) : auth.Email.Split('@')[0].Substring(0, 5) + "_" + Guid.NewGuid().ToString().Replace('-', 'm').Substring(0, 5);
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = Convert.ToString("insert into usertbl(FirstName, LastName, UserName, Email, Password, PasswordSalt, ContactNumber, IsVerified, CreationDate, ModifiedDate, UserGuid)" +
-                "values(@FirstName, @LastName, @UserName, @Email, @Password, @PasswordSalt, @ContactNumber, @IsVerified, @CreationDate, @ModifiedDate, @UUID)");
+                string query = Convert.ToString("insert into usertbl(FirstName, LastName, UserName, Email, Password, PasswordSalt, ContactNumber, IsVerified, CreationDate, ModifiedDate, UserGuid, UserType)" +
+                "values(@FirstName, @LastName, @UserName, @Email, @Password, @PasswordSalt, @ContactNumber, @IsVerified, @CreationDate, @ModifiedDate, @UUID, @UserType)");
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
@@ -106,13 +108,14 @@ namespace WP.Repository.Classes
                         cmd.Parameters.AddWithValue("@LastName", auth.LastName);
                         cmd.Parameters.AddWithValue("@UserName", userName);
                         cmd.Parameters.AddWithValue("@Email", auth.Email);
-                        cmd.Parameters.AddWithValue("@Password", auth.Password);
-                        cmd.Parameters.AddWithValue("@PasswordSalt", auth.PasswordSalt);
+                        cmd.Parameters.AddWithValue("@Password", pass);
+                        cmd.Parameters.AddWithValue("@PasswordSalt", salt);
                         cmd.Parameters.AddWithValue("@ContactNumber", auth.ContactNumber);
                         cmd.Parameters.AddWithValue("@IsVerified", auth.IsVerified);
                         cmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@UUID", Guid.NewGuid().ToString());
+                        cmd.Parameters.AddWithValue("@UserType", auth.UserTypeId);
 
                         if (await cmd.ExecuteNonQueryAsync() > 0)
                         {

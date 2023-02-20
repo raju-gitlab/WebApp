@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using WP.Model.Utilities;
 
 namespace WP.Model.Models
 {
@@ -16,7 +17,6 @@ namespace WP.Model.Models
         public string MediaVisibilityState { get; set; }
         public string PostUUID { get; set; }
         public string UserUUID { get; set; }
-        public HttpPostedFileBase Files { get; set; }
     }
     public class PostsViewModel : CreatePostModel
     {

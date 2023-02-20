@@ -48,6 +48,19 @@ namespace WebApp.API.Controllers
                 throw;
             }
         }
+        [HttpGet]
+        public async Task<IHttpActionResult> PageById([FromUri]string PageId)
+        {
+            try
+            {
+                var result = await this._postsBusiness.PageById(PageId);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         #endregion
 
         #region POST
@@ -56,22 +69,15 @@ namespace WebApp.API.Controllers
         {
             try
             {
-                if(await this._postsBusiness.IsValid(pages.PageName))
+                pages.OwnerId = HttpContext.Current.Request.Headers.Get("OwnerId").ToString();
+                string result = await this._postsBusiness.CreatePage(pages);
+                if (result != null)
                 {
-                    pages.OwnerId = HttpContext.Current.Request.Headers.Get("OwnerId").ToString();
-                    string result = await this._postsBusiness.CreatePage(pages);
-                    if (result != null)
-                    {
-                        return Ok(result);
-                    }
-                    else
-                    {
-                        return BadRequest("NULL");
-                    }
+                    return Ok(result);
                 }
                 else
                 {
-                    return BadRequest("Page name is available");
+                    return BadRequest("NULL");
                 }
             }
             catch (Exception ex)

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using WP.Business.Interfaces;
 using WP.Model.Models;
+using WP.Utillities.Encryption;
 
 namespace WebApp.API.Controllers
 {

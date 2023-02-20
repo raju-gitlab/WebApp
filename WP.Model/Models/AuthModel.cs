@@ -14,10 +14,11 @@ namespace WP.Model.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string PasswordSalt { get; set; }
-        public int ContactNumber { get; set; }
+        public long ContactNumber { get; set; }
         public bool IsVerified { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public int UserTypeId { get; set; }
         public string UUID { get; set; }
     }
     public class AuthModifyModel

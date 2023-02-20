@@ -79,5 +79,131 @@ namespace WP.Repository.Classes.Misc
                 throw ex;
             }
         }
+
+        #region Get category by id
+        public async Task<int> GetCategoryId(string CategoryId)
+        {
+            int categoryid = -1;
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["Connectionstring"].ToString();
+                string query = "select Id as CategoryId from categories where CategoryUUID = @categoryid";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@categoryid", CategoryId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            categoryid = Convert.ToInt32(rdr["CategoryId"].ToString());
+                        }
+                    }
+                    await con.CloseAsync();
+                }
+                return categoryid;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get privacy by id
+        public async Task<int> GetPrivacyId(string PrivacyId)
+        {
+            int privacyid = -1;
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["Connectionstring"].ToString();
+                string query = "select Id as PrivacyId from privacycategory where PrivacyUUID = @privacyid";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@privacyid", PrivacyId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            privacyid = Convert.ToInt32(rdr["PrivacyId"].ToString());
+                        }
+                    }
+                    await con.CloseAsync();
+                }
+                return privacyid;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get user id
+        public async Task<int> GetUserId(string UserId)
+        {
+            int userid = -1;
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "select Id as UserId from usertbl where UserGuid = @userid";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.Add(new MySqlParameter("@userid", UserId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            userid = Convert.ToInt32(rdr["UserId"].ToString());
+                        }
+                    }
+                }
+                return userid;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Get page by id
+        public async Task<int> GetPageId(string Pageid)
+        {
+            try
+            {
+                int pageid = -1;
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "select Id as PageId from pages where PageUUID = @pageid";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.Add(new MySqlParameter("@pageid", Pageid));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            pageid = Convert.ToInt32(rdr["PageId"].ToString());
+                        }
+                    }
+                }
+                return pageid;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }
