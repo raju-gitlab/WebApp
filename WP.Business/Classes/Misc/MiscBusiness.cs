@@ -26,5 +26,13 @@ namespace WP.Business.Classes.Misc
         {
             return await this._miscRepository.ListCategories();
         }
+        public async Task<List<string>> ListTags()
+        {
+            return await this._miscRepository.ListTags();
+        }
+        public async Task<bool> Addtag(string[] tags)
+        {
+            return await this._miscRepository.Addtag(tags);
+        }
     }
 }

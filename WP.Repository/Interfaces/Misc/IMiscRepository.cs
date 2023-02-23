@@ -15,5 +15,8 @@ namespace WP.Repository.Interfaces.Misc
         Task<int> GetPageId(string PageUUID);
         Task<List<PrivacyModel>> ListPrivacies();
         Task<List<CategoryModel>> ListCategories();
+        Task<List<string>> ListTags();
+        Task<bool> Addtag(string[] tags);
+
     }
 }

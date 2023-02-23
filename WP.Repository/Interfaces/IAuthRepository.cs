@@ -10,7 +10,7 @@ namespace WP.Repository.Interfaces
     public interface IAuthRepository
     {
         Task<bool> IsValid(string EmailId);
-        Task<string> Register(AuthModel auth);
+        Task<string> Register(RegisterModel auth);
         Task<bool> Login(string username, string password);
         Task<bool> UpdatePassword(AuthModifyModel authModify);
         Task<bool> UpdateAccountDeatails(AccountModifyModel accountModify);

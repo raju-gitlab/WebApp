@@ -30,8 +30,8 @@ namespace WP.Business.Classes
             try
             {
                 posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
-                posts.IdTypeTwo = await this._miscRepository.GetCategoryId(posts.PostUUID);
-                posts.IdTypeThree = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
+                posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.PostUUID);
+                posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
                 string result = await this._postsRepository.CreatePost(posts);
                 if (!string.IsNullOrEmpty(result))
                 {
@@ -54,9 +54,24 @@ namespace WP.Business.Classes
         public async Task<string> CreatePagePost(PostsViewModel posts)
         {
             posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
-            posts.IdTypeTwo = await this._miscRepository.GetCategoryId(posts.PostUUID);
-            posts.IdTypeThree = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
-            throw new Exception();
+            posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.PostUUID);
+            posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
+            if(posts.Userserialid == -1)
+            {
+                return "";
+            }
+            else if (posts.Cateoryserialid == -1)
+            {
+                return "";
+            }
+            else if (posts.Privacyserialid == -1)
+            {
+                return "";
+            }
+            else
+            {
+                return await this._postsRepository.CreatePagePost(posts);
+            }
         }
 
         #endregion
@@ -71,10 +86,20 @@ namespace WP.Business.Classes
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsViewModel>> GetAllPosts()
+        #region Get all post
+        public async Task<List<PostsViewModel>> GetAllPosts()
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                return await this._postsRepository.GetAllPosts();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        } 
+        #endregion
 
         public Task<List<PostsViewModel>> GetAllPostsByPostCategory()
         {

@@ -40,5 +40,19 @@ namespace WebApp.API.Controllers
             var result = await this._miscBusiness.ListCategories();
             return Ok(result);
         }
+
+        [HttpGet]
+        public async Task<IHttpActionResult> ListTags()
+        {
+            var result = await this._miscBusiness.ListTags();
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IHttpActionResult> Addtag([FromUri]string[] tags)
+        {
+            var result = await this._miscBusiness.Addtag(tags);
+            return Ok();
+        }
     }
 }

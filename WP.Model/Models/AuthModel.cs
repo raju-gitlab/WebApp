@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 
 namespace WP.Model.Models
 {
-    public class AuthModel
+    public class RegisterModel
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+    public class AuthModel : RegisterModel
+    {
         public string PasswordSalt { get; set; }
         public long ContactNumber { get; set; }
         public bool IsVerified { get; set; }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
 using WP.Utillities.Encryption;
+using WP.Utillities.Utilities;
 
 namespace WP.Repository.Classes
 {
@@ -88,7 +89,7 @@ namespace WP.Repository.Classes
 
         #region POST
         #region Register
-        public async Task<string> Register(AuthModel auth)
+        public async Task<string> Register(RegisterModel auth)
         {
             try
             {
@@ -110,12 +111,11 @@ namespace WP.Repository.Classes
                         cmd.Parameters.AddWithValue("@Email", auth.Email);
                         cmd.Parameters.AddWithValue("@Password", pass);
                         cmd.Parameters.AddWithValue("@PasswordSalt", salt);
-                        cmd.Parameters.AddWithValue("@ContactNumber", auth.ContactNumber);
-                        cmd.Parameters.AddWithValue("@IsVerified", auth.IsVerified);
+                        cmd.Parameters.AddWithValue("@IsVerified", 0);
                         cmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
                         cmd.Parameters.AddWithValue("@UUID", Guid.NewGuid().ToString());
-                        cmd.Parameters.AddWithValue("@UserType", auth.UserTypeId);
+                        cmd.Parameters.AddWithValue("@UserType", 1);
 
                         if (await cmd.ExecuteNonQueryAsync() > 0)
                         {
@@ -132,6 +132,7 @@ namespace WP.Repository.Classes
             }
             catch (Exception ex)
             {
+                await LogManager.Log(ex);
                 return null;
             }
         }
@@ -171,7 +172,8 @@ namespace WP.Repository.Classes
             }
             catch (Exception ex)
             {
-                throw;
+                await LogManager.Log(ex);
+                throw ex;
             }
         }
         #endregion
@@ -208,7 +210,7 @@ namespace WP.Repository.Classes
             }
             catch (Exception ex)
             {
-
+                await LogManager.Log(ex);
                 throw;
             }
         }

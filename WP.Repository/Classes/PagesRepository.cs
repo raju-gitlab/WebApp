@@ -244,8 +244,8 @@ namespace WP.Repository.Classes
                         commmand.Parameters.AddWithValue("@LikesCount", 0);
                         commmand.Parameters.AddWithValue("@IsActived", 1);
                         commmand.Parameters.AddWithValue("@IsBlocked", 0);
-                        commmand.Parameters.AddWithValue("@PrivacyType", page.IdTypeThree);
-                        commmand.Parameters.AddWithValue("@Pagetype", page.IdTypeTwo);
+                        commmand.Parameters.AddWithValue("@PrivacyType", page.Privacyserialid);
+                        commmand.Parameters.AddWithValue("@Pagetype", page.Cateoryserialid);
 
                         if (await commmand.ExecuteNonQueryAsync() > 0)
                         {

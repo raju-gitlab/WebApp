@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WP.Model.Utilities;
 using WP.Repository.Interfaces.Misc;
+using WP.Utillities.Utilities;
 
 namespace WP.Repository.Classes.Misc
 {
@@ -202,6 +203,81 @@ namespace WP.Repository.Classes.Misc
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        #endregion
+
+        #region ListTags
+        public int MyProperty { get; set; }
+
+        public async Task<List<string>> ListTags()
+        {
+            try
+            {
+                List<string> tags = new List<string>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "select tagename as Tagname from tags";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        while(await rdr.ReadAsync())
+                        {
+                            tags.Add(rdr["TagName"].ToString());
+                        }
+                    }
+                    await con.CloseAsync();
+                }
+                return tags;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Add new tag
+        public async Task<bool> Addtag(string[] tags)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "insert into tags(tagename, usedcount) values";
+                StringBuilder sCommand = new StringBuilder(query);
+                List<string> Rows = new List<string>();
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    Rows.Add(string.Format("('{0}','{1}')", MySqlHelper.EscapeString(tags[i].ToString()), MySqlHelper.EscapeString("0")));
+                }
+                sCommand.Append(string.Join(",", Rows));
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(sCommand.ToString(), con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        if (await cmd.ExecuteNonQueryAsync() > 0)
+                        {
+                            await con.CloseAsync();
+                            return true;
+                        }
+                        else
+                        {
+                            await con.CloseAsync();
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw ex; 
             }
         }
         #endregion

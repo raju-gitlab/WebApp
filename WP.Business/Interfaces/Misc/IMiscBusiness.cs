@@ -11,5 +11,7 @@ namespace WP.Business.Interfaces.Misc
     {
         Task<List<PrivacyModel>> ListPrivacies();
         Task<List<CategoryModel>> ListCategories();
+        Task<List<string>> ListTags();
+        Task<bool> Addtag(string[] tags);
     }
 }

@@ -23,7 +23,13 @@ namespace WP.Model.Utilities
     public class ListIds
     {
         public int Userserialid { get; set; }
-        public int IdTypeTwo { get; set; }
-        public int IdTypeThree { get; set; }
+        public int Cateoryserialid { get; set; }
+        public int Privacyserialid { get; set; }
+        public int PageserialId { get; set; }
+    }
+    public class TagsModel
+    {
+        public string TagName { get; set; }
+        public int UseCount { get; set; }
     }
 }

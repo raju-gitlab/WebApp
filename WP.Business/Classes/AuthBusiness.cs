@@ -66,7 +66,7 @@ namespace WP.Business.Classes
             }
         }
 
-        public async Task<string> Register(AuthModel auth)
+        public async Task<string> Register(RegisterModel auth)
         {
             try
             {

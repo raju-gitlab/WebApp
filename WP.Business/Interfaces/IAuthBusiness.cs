@@ -10,7 +10,7 @@ namespace WP.Business.Interfaces
     public interface IAuthBusiness
     {
         Task<bool> IsValid(string EmailId);
-        Task<string> Register(AuthModel auth);
+        Task<string> Register(RegisterModel auth);
         Task<bool> Login(string username, string password);
     }
 }

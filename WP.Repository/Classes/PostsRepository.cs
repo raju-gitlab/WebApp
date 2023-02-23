@@ -227,7 +227,7 @@ namespace WP.Repository.Classes
         #endregion
 
         #region Post
-        #region CreateNewPost
+        #region CreatePost
         public async Task<string> CreatePost(PostsViewModel posts)
         {
             try
@@ -244,13 +244,13 @@ namespace WP.Repository.Classes
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.AddWithValue("@PostTitle", posts.PostTitle);
                         cmd.Parameters.AddWithValue("@PostDescription", posts.PostDescription);
-                        cmd.Parameters.AddWithValue("@PostCategory", posts.IdTypeTwo);
+                        cmd.Parameters.AddWithValue("@PostCategory", posts.Cateoryserialid);
                         cmd.Parameters.AddWithValue("@UserId", posts.Userserialid);
                         cmd.Parameters.AddWithValue("@CreatedOn", DateTime.UtcNow);
                         cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
                         cmd.Parameters.AddWithValue("@LikeCount", 0);
                         cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
-                        cmd.Parameters.AddWithValue("@MediaVisibility", posts.IdTypeThree);
+                        cmd.Parameters.AddWithValue("@MediaVisibility", posts.Privacyserialid);
                         cmd.Parameters.AddWithValue("@PostUUID", UUID);
                         cmd.Parameters.AddWithValue("@SpamReportCount", 0);
                         cmd.Parameters.AddWithValue("@IsBlocked", false);
@@ -275,6 +275,53 @@ namespace WP.Repository.Classes
         }
         #endregion
 
+        #region Create page post
+        public async Task<string> CreatePagePost(PostsViewModel posts)
+        {
+            try
+            {
+                UUID = Guid.NewGuid().ToString();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "INSERT INTO page_specific_posts " +
+                " ( PostTitle, PostDescription, UserId, PageId, PostCategory, MediaVisibility, FilePath, CreatedOn,ModifiedOn,LikeCount," +
+                " DislikeCount, SpamReportCount, IsDeleted, IsBlocked, PostUUID)" +
+                " VALUES" +
+                " (@PostTitle, @PostDescription, (select Id from usertbl u where UserGuid = @userid), (select Id from pages where PageUUID = @pageid), (select Id from categories where CategoryUUID = @categoryid), (select Id from privacycategory where PrivacyUUID = @privacyid), @FilePath, @CreatedOn,@ModifiedOn,0," +
+                " 0, 0, 0, 0, @postUUID";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("userid", posts.UserId));
+                        cmd.Parameters.Add(new MySqlParameter("privacy", posts.MediaVisibilityState));
+                        cmd.Parameters.Add(new MySqlParameter("", posts.PostCategoryName));
+                        cmd.Parameters.AddWithValue("", posts.PostTitle);
+                        cmd.Parameters.AddWithValue("", posts.PostDescription);
+                        cmd.Parameters.AddWithValue("", posts.FilePath);
+                        cmd.Parameters.AddWithValue("CreatedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("ModifiedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("PageUUID", UUID);
+
+                        if (await cmd.ExecuteNonQueryAsync() > 0)
+                        {
+                            await con.CloseAsync();
+                            return UUID;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -390,10 +437,7 @@ namespace WP.Repository.Classes
             }
         }
 
-        public Task<string> CreatePagePost(PostsViewModel posts)
-        {
-            throw new NotImplementedException();
-        }
+        
         #endregion
         #endregion
     }

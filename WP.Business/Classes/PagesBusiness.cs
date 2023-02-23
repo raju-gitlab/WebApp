@@ -108,19 +108,19 @@ namespace WP.Business.Classes
                 if (!await this._postsRepository.IsValid(page.PageName))
                 {
                     page.Userserialid = await this._miscRepository.GetUserId(page.OwnerId);
-                    page.IdTypeTwo = await this._miscRepository.GetCategoryId(page.CategoryType);
-                    page.IdTypeThree = await this._miscRepository.GetPrivacyId(page.PrivacyType);
+                    page.Cateoryserialid = await this._miscRepository.GetCategoryId(page.CategoryType);
+                    page.Privacyserialid = await this._miscRepository.GetPrivacyId(page.PrivacyType);
 
                     if (page.Userserialid == -1)
                     {
                         return "User not found";
                     }
-                    else if (page.IdTypeTwo == -1)
+                    else if (page.Cateoryserialid == -1)
                     {
                         return "Category not found";
 
                     }
-                    else if (page.IdTypeThree == -1)
+                    else if (page.Privacyserialid == -1)
                     {
                         return "Privacy type not found";
                     }
