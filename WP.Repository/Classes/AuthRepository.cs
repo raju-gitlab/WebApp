@@ -1,10 +1,14 @@
 ﻿using MySql;
 using MySql.Data.MySqlClient;
+using Mysqlx.Session;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.Common;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
 using WP.Utillities.Encryption;
@@ -15,7 +19,9 @@ namespace WP.Repository.Classes
     public class AuthRepository : IAuthRepository
     {
         #region Parameters
-        public string userName{ get; set; }
+        private string userName{ get; set; }
+        private string Password { get; set; }
+        private string PasswordSalt { get; set; }
         #endregion
 
         #region GET
@@ -53,11 +59,13 @@ namespace WP.Repository.Classes
         #endregion
 
         #region Login
-        public async Task<bool> Login(string username, string password)
+        public async Task<int> Login(string username, string password)
         {
             try
             {
-                string query = "SELECT EXISTS (select Id from usertbl where FirstName = @fname)";
+                string query = "select Password, PasswordSalt from usertbl ut where UserName = @username "
+                    +"union "
+                    +"select Password, PasswordSalt from usertbl ut where Email = @username";
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
@@ -65,16 +73,32 @@ namespace WP.Repository.Classes
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add(new MySqlParameter("@fname", username));
-                        if (Convert.ToInt32(await cmd.ExecuteScalarAsync()) == 1)
+                        cmd.Parameters.Add(new MySqlParameter("@username", username));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if(rdr == null)
                         {
                             await con.CloseAsync();
-                            return true;
+                            return -1;
+                        }
+
+                        if(await rdr.ReadAsync())
+                        {
+                            Password = rdr["Password"].ToString();
+                            PasswordSalt = rdr["PasswordSalt"].ToString();
+                            if(Encryption.getHash(password + PasswordSalt) == Password)
+                            {
+                                await con.CloseAsync();
+                                return 1;
+                            }
+                            else
+                            {
+                                await con.CloseAsync();
+                                return 0;
+                            }
                         }
                         else
                         {
-                            await con.CloseAsync();
-                            return false;
+                            return -1;
                         }
                     }
                 }

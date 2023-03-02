@@ -11,7 +11,7 @@ namespace WP.Repository.Interfaces
     {
         Task<bool> IsValid(string EmailId);
         Task<string> Register(RegisterModel auth);
-        Task<bool> Login(string username, string password);
+        Task<int> Login(string username, string password);
         Task<bool> UpdatePassword(AuthModifyModel authModify);
         Task<bool> UpdateAccountDeatails(AccountModifyModel accountModify);
     }

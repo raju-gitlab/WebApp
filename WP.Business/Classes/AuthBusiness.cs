@@ -45,7 +45,7 @@ namespace WP.Business.Classes
             }
         }
 
-        public async Task<bool> Login(string username, string password)
+        public async Task<int> Login(string username, string password)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace WP.Business.Classes
                 }
                 else
                 {
-                    return false;
+                    return -1 ;
                 }
             }
             catch (Exception ex)

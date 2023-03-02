@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Optimization;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Utillities.Encryption;
@@ -23,13 +24,23 @@ namespace WebApp.API.Controllers
 
         #region Get
         [HttpGet]
-        public async Task<IHttpActionResult> IsValid([FromUri]string email, [FromUri] string password)
+        public async Task<IHttpActionResult> Login([FromUri]string UserName, [FromUri] string Password)
         {
-            var result =  await this._authBusiness.Login(email, password);
-            return Ok(result);
+            var result =  await this._authBusiness.Login(UserName, Password);
+            if(result == 1)
+            {
+                return Ok(UserName);
+            }
+            else if(result == -1)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok("Password or UserName is not matced");
+            }
         }
         #endregion
-
         #region POST
         [HttpPost]
         [AllowAnonymous]

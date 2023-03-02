@@ -11,6 +11,6 @@ namespace WP.Business.Interfaces
     {
         Task<bool> IsValid(string EmailId);
         Task<string> Register(RegisterModel auth);
-        Task<bool> Login(string username, string password);
+        Task<int> Login(string username, string password);
     }
 }

@@ -15,6 +15,7 @@ namespace WP.Repository.Classes.Misc
 {
     public class MiscRepository : IMiscRepository
     {
+        #region Privacies list
         public async Task<List<PrivacyModel>> ListPrivacies()
         {
             try
@@ -22,14 +23,14 @@ namespace WP.Repository.Classes.Misc
                 List<PrivacyModel> privacytypes = new List<PrivacyModel>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "select PrivacyType, PrivacyUUID from privacycategory";
-                using(MySqlConnection connection = new MySqlConnection(ConnectionString))
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                 {
                     await connection.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, connection))
+                    using (MySqlCommand cmd = new MySqlCommand(query, connection))
                     {
                         cmd.CommandType = CommandType.Text;
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
-                        while(await rdr.ReadAsync())
+                        while (await rdr.ReadAsync())
                         {
                             privacytypes.Add(new PrivacyModel
                             {
@@ -46,8 +47,10 @@ namespace WP.Repository.Classes.Misc
             {
                 throw ex;
             }
-        }
+        } 
+        #endregion
 
+        #region Categories list
         public async Task<List<CategoryModel>> ListCategories()
         {
             try
@@ -79,7 +82,8 @@ namespace WP.Repository.Classes.Misc
             {
                 throw ex;
             }
-        }
+        } 
+        #endregion
 
         #region Get category by id
         public async Task<int> GetCategoryId(string CategoryId)
