@@ -9,6 +9,7 @@ using WP.Repository.Interfaces;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace WP.Repository.Classes
 {
@@ -29,14 +30,14 @@ namespace WP.Repository.Classes
                 List<PageModel> results = new List<PageModel>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         DbDataReader reader = await cmd.ExecuteReaderAsync();
-                        while(await reader.ReadAsync())
+                        while (await reader.ReadAsync())
                         {
                             results.Add(new PageModel
                             {
@@ -57,7 +58,7 @@ namespace WP.Repository.Classes
                     await con.CloseAsync();
                 }
 
-                if(results.Count != 0)
+                if (results.Count != 0)
                 {
                     return null;
                 }
@@ -82,15 +83,15 @@ namespace WP.Repository.Classes
                 Tuple<PageModel, List<PostsViewModel>> result = new Tuple<PageModel, List<PostsViewModel>>(new PageModel(), new List<PostsViewModel>());
                 List<PageModel> list = new List<PageModel>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
-                    string query = "SELECT p.PageName, p.PageDescription, p.ProfileImagePath, p.PageUUID, c.CategoryName, p.CreatedDate,p.IsActived, p.LikesCount,p.Subscribers, pc.PrivacyType, p.IsBlocked"+
-                    " FROM pages p"+
-                    " inner join categories c on c.Id = p.PageType"+
-                    " inner join privacycategory pc on pc.Id = p.Privacytype"+
+                    string query = "SELECT p.PageName, p.PageDescription, p.ProfileImagePath, p.PageUUID, c.CategoryName, p.CreatedDate,p.IsActived, p.LikesCount,p.Subscribers, pc.PrivacyType, p.IsBlocked" +
+                    " FROM pages p" +
+                    " inner join categories c on c.Id = p.PageType" +
+                    " inner join privacycategory pc on pc.Id = p.Privacytype" +
                     " where p.PageUUID = @pageId";
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("@pageId", PageId));
@@ -106,20 +107,20 @@ namespace WP.Repository.Classes
                             result.Item1.IsActivated = (!string.IsNullOrEmpty(rdr["IsActived"].ToString()) ? Convert.ToBoolean(rdr["IsActived"].ToString()) : false);
                             result.Item1.LikesCount = (!string.IsNullOrEmpty(rdr["LikesCount"].ToString()) ? Convert.ToInt64(rdr["LikesCount"].ToString()) : 0);
                             result.Item1.Subscribers = (!string.IsNullOrEmpty(rdr["Subscribers"].ToString()) ? Convert.ToInt64(rdr["Subscribers"].ToString()) : 0);
-                            result.Item1.PrivacyType= (!string.IsNullOrEmpty(rdr["PrivacyType"].ToString()) ? Convert.ToString(rdr["PrivacyType"].ToString()) : null);
+                            result.Item1.PrivacyType = (!string.IsNullOrEmpty(rdr["PrivacyType"].ToString()) ? Convert.ToString(rdr["PrivacyType"].ToString()) : null);
                             result.Item1.IsBlocked = (!string.IsNullOrEmpty(rdr["IsBlocked"].ToString()) ? Convert.ToBoolean(rdr["IsBlocked"].ToString()) : true);
                         }
                     }
                     await con.CloseAsync();
-                    if(result.Item1 == null)
+                    if (result.Item1 == null)
                     {
                         return null;
                     }
                     else
                     {
-                        query = "SELECT p.PostTitle, p.PostDescription, c.CategoryName,  p.CreatedOn, p.LikeCount, p.DislikeCount, p.FilePath, p.PostUUID, p.UserId"+
-                        " FROM posts p"+
-                        " inner join categories c on c.Id = p.PostCategory"+
+                        query = "SELECT p.PostTitle, p.PostDescription, c.CategoryName,  p.CreatedOn, p.LikeCount, p.DislikeCount, p.FilePath, p.PostUUID, p.UserId" +
+                        " FROM posts p" +
+                        " inner join categories c on c.Id = p.PostCategory" +
                         " where p.MediaVisibility != 2 and p.MediaVisibility != 3";
                         await con.OpenAsync();
                         using (MySqlCommand cmd = new MySqlCommand(query, con))
@@ -127,7 +128,7 @@ namespace WP.Repository.Classes
                             cmd.CommandType = CommandType.Text;
                             //cmd.Parameters.Add(new MySqlParameter("@", PageId));
                             DbDataReader rdr = await cmd.ExecuteReaderAsync();
-                            while(await rdr.ReadAsync())
+                            while (await rdr.ReadAsync())
                             {
                                 result.Item2.Add(new PostsViewModel
                                 {
@@ -146,7 +147,7 @@ namespace WP.Repository.Classes
                         }
                     }
                 }
-                if(result != null)
+                if (result != null)
                 {
                     return result;
                 }
@@ -169,6 +170,55 @@ namespace WP.Repository.Classes
             try
             {
                 return null;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region GetPagesByUserId
+        public async Task<List<PageCardModel>> GetPagesByUserId(string UserId)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "select ut.FirstName, Ut.lastName, p.PageName, p.LikesCount, p.subscribers, p.ProfileImagePath, p.PageUUID from pages p "
+                +"inner join usertbl ut on ut.Id = p.OwnerId "
+                + "where ut.UserGuid = @userid";
+                List<PageCardModel> UserPages = new List<PageCardModel>();
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query,con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@userid", UserId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        while(await rdr.ReadAsync())
+                        {
+                            UserPages.Add(new PageCardModel
+                            {
+                                PageName = (!string.IsNullOrEmpty(rdr["PageName"].ToString())) ? rdr["PageName"].ToString() : null,
+                                ProfileImagePath = (!string.IsNullOrEmpty(rdr["ProfileImagePath"].ToString())) ? rdr["ProfileImagePath"].ToString() : null,
+                                LikeCount = (!string.IsNullOrEmpty(rdr["LikesCount"].ToString())) ? Convert.ToInt64(rdr["LikesCount"].ToString()) : 0,
+                                SubscribeCount = (!string.IsNullOrEmpty(rdr["Subscribers"].ToString())) ? Convert.ToInt64(rdr["Subscribers"].ToString()) : 0,
+                                PageUUID = (!string.IsNullOrEmpty(rdr["PageUUID"].ToString())) ? rdr["PageUUID"].ToString() : null
+                            });
+                        }
+                        await con.CloseAsync();
+                    }
+                }
+                if(UserPages.Count != 0)
+                {
+                    return UserPages;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -263,9 +313,9 @@ namespace WP.Repository.Classes
 
                 throw;
             }
-        }  
+        }
         #endregion
-        
+
         #endregion
 
         public async Task<string> ModifyPage(PageModifyModel page)
@@ -277,7 +327,7 @@ namespace WP.Repository.Classes
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.AddWithValue("@PageName", page.PageName);
@@ -287,7 +337,7 @@ namespace WP.Repository.Classes
                         cmd.Parameters.AddWithValue("@IsActivated", page.IsActivated);
                         cmd.Parameters.Add(new MySqlParameter("@PageId", page.PageUUID));
 
-                        if(Convert.ToInt32(cmd.ExecuteNonQueryAsync()) > 0)
+                        if (Convert.ToInt32(cmd.ExecuteNonQueryAsync()) > 0)
                         {
                             await con.CloseAsync();
                             return page.PageUUID;

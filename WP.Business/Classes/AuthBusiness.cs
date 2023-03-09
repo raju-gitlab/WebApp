@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,7 +46,7 @@ namespace WP.Business.Classes
             }
         }
 
-        public async Task<int> Login(string username, string password)
+        public async Task<string> Login(string username, string password)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace WP.Business.Classes
                 }
                 else
                 {
-                    return -1 ;
+                    return null;
                 }
             }
             catch (Exception ex)

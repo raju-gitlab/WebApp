@@ -9,7 +9,8 @@ namespace WP.Business.Interfaces
 {
     public interface IPagesBusiness
     {
-        Task<List<PageModel>> ListPages(); 
+        Task<List<PageCardModel>> GetPagesByUserId(string UserId);
+        Task<List<PageModel>> ListPages();
         Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId);
         Task<List<PageModel>> ListPagesbyfilter(string[] filters);
         Task<bool> IsValid(string pageName);

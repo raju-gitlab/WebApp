@@ -59,13 +59,14 @@ namespace WP.Repository.Classes
         #endregion
 
         #region Login
-        public async Task<int> Login(string username, string password)
+        public async Task<string> Login(string username, string password)
         {
             try
             {
-                string query = "select Password, PasswordSalt from usertbl ut where UserName = @username "
-                    +"union "
-                    +"select Password, PasswordSalt from usertbl ut where Email = @username";
+                string query = "select Password, PasswordSalt, UserGuid from usertbl ut where UserName = @username "
+                    + "union "
+                    + "select Password, PasswordSalt, UserGuid from usertbl ut where Email = @username";
+                string UserID = null;
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
@@ -78,27 +79,28 @@ namespace WP.Repository.Classes
                         if(rdr == null)
                         {
                             await con.CloseAsync();
-                            return -1;
+                            return "User not found";
                         }
 
                         if(await rdr.ReadAsync())
                         {
-                            Password = rdr["Password"].ToString();
-                            PasswordSalt = rdr["PasswordSalt"].ToString();
+                            Password = (!string.IsNullOrEmpty(rdr["Password"].ToString())) ? rdr["Password"].ToString() : null;
+                            PasswordSalt = (!string.IsNullOrEmpty(rdr["PasswordSalt"].ToString())) ? rdr["PasswordSalt"].ToString() : null;
+                            UserID = (!string.IsNullOrEmpty(rdr["UserGuid"].ToString())) ? rdr["UserGuid"].ToString() : null;
                             if(Encryption.getHash(password + PasswordSalt) == Password)
                             {
                                 await con.CloseAsync();
-                                return 1;
+                                return UserID;
                             }
                             else
                             {
                                 await con.CloseAsync();
-                                return 0;
+                                return "Invalid Username or Password";
                             }
                         }
                         else
                         {
-                            return -1;
+                            return null;
                         }
                     }
                 }

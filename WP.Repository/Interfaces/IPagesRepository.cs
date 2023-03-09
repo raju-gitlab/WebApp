@@ -9,6 +9,7 @@ namespace WP.Repository.Interfaces
 {
     public interface IPagesRepository
     {
+        Task<List<PageCardModel>> GetPagesByUserId(string UserId);
         Task<List<PageModel>> ListPages();
         Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId);
         Task<List<PageModel>> ListPagesbyfilter(string[] filters);

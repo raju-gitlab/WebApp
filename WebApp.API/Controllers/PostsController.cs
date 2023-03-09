@@ -48,7 +48,13 @@ namespace WebApp.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IHttpActionResult> AddPost(PostsViewModel posts)
+        public async Task<IHttpActionResult> AddPost1(HttpPostedFile filename)
+        {
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IHttpActionResult> AddPost([FromBody]PostsViewModel posts)
         {
             try
             {

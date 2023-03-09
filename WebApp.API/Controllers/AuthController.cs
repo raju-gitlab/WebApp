@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Optimization;
+using WebGrease.Css.Visitor;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Utillities.Encryption;
@@ -23,15 +26,17 @@ namespace WebApp.API.Controllers
         #endregion
 
         #region Get
+
+        #region Login
         [HttpGet]
-        public async Task<IHttpActionResult> Login([FromUri]string UserName, [FromUri] string Password)
+        public async Task<IHttpActionResult> Login([FromUri] string UserName, [FromUri] string Password)
         {
-            var result =  await this._authBusiness.Login(UserName, Password);
-            if(result == 1)
+            var result = await this._authBusiness.Login(UserName, Password);
+            if (result != null)
             {
-                return Ok(UserName);
+                return Ok(result);
             }
-            else if(result == -1)
+            else if (result.ToLower().ToString() == "User not found".ToLower().ToString())
             {
                 return NotFound();
             }
@@ -41,6 +46,25 @@ namespace WebApp.API.Controllers
             }
         }
         #endregion
+
+        #region Profile
+        public async Task<IHttpActionResult> YourProfile()
+        {
+            try
+            {
+                string UserId = HttpContext.Current.Request.Headers.Get("UserId").ToString();
+                return Ok();
+            } 
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #endregion
+
         #region POST
         [HttpPost]
         [AllowAnonymous]

@@ -7,6 +7,7 @@ using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
 using WP.Repository.Interfaces.Misc;
+using WP.Utillities.Utilities;
 
 namespace WP.Business.Classes
 {
@@ -95,6 +96,37 @@ namespace WP.Business.Classes
                 throw;
             }
         }
+        #endregion
+
+        #region GetPagesByUserId
+        public async Task<List<PageCardModel>> GetPagesByUserId(string UserId)
+        {
+            try
+            {
+                if(!string.IsNullOrEmpty(UserId))
+                {
+                    List<PageCardModel> result =  await this._postsRepository.GetPagesByUserId(UserId);
+                    if(result != null)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
+            }
+        }
+
         #endregion
 
         #endregion

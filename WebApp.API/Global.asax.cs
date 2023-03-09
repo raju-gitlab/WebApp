@@ -14,8 +14,9 @@ namespace WebApp.API
     {
         protected void Application_Start()
         {
-            IocConfig.SolveDependency();
+            AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
+            IocConfig.SolveDependency();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);

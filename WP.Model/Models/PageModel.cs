@@ -26,7 +26,6 @@ namespace WP.Model.Models
         public string CategoryType { get; set; }
 
     }
-    
     public class PageModifyModel
     {
         public string PageName { get; set; }
@@ -34,6 +33,13 @@ namespace WP.Model.Models
         public string ProfileImagePath { get; set; }
         public bool IsActivated { get; set; }
         public string PageUUID { get; set; }
+    }
+    public class PageCardModel : PageModifyModel
+    {
+        public string AdminName { get; set; }
+        public string AdminUUID { get; set; }
+        public long LikeCount { get; set; }
+        public long SubscribeCount { get; set; }
     }
 
 }
