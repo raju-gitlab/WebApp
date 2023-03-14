@@ -19,5 +19,6 @@ namespace WP.Repository.Interfaces
         Task<PostsViewModel> UpdateExistingPost(CreatePostModel post);
         Task<bool> DeletePost(string PostId, string UserId);
         Task<bool> DeletePagePost(string pageId, string PostId);
+        Task<List<PostsViewModel>> TrendsPosts();
     }
 }

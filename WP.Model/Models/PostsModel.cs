@@ -17,6 +17,7 @@ namespace WP.Model.Models
         public string MediaVisibilityState { get; set; }
         public string PostUUID { get; set; }
         public string UserUUID { get; set; }
+        public string PostTags { get; set; }
     }
     public class PostsViewModel : CreatePostModel
     {

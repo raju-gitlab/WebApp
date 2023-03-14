@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -25,13 +21,15 @@ namespace WebApp.API.Controllers
         }
         #endregion
 
+        #region Get
+        #region Lists Posts
         [HttpGet]
         public async Task<IHttpActionResult> ListPosts()
         {
             try
             {
                 var result = await this._postsBusiness.GetAllPosts();
-                if(result != null)
+                if (result != null)
                 {
                     return Ok(result);
                 }
@@ -46,20 +44,26 @@ namespace WebApp.API.Controllers
                 throw;
             }
         }
+        #endregion
+        #endregion
 
+        #region Post
+        #region AddPost1
         [HttpPost]
         public async Task<IHttpActionResult> AddPost1(HttpPostedFile filename)
         {
             return Ok();
         }
+        #endregion
 
+        #region Add Page Post
         [HttpPost]
-        public async Task<IHttpActionResult> AddPost([FromBody]PostsViewModel posts)
+        public async Task<IHttpActionResult> AddPost([FromBody] PostsViewModel posts)
         {
             try
             {
                 string result = await this._postsBusiness.CreatePost(posts);
-                if(!String.IsNullOrEmpty(result))
+                if (!String.IsNullOrEmpty(result))
                 {
                     return Ok(result);
                 }
@@ -67,17 +71,22 @@ namespace WebApp.API.Controllers
                 {
                     return BadRequest("Bad Request");
                 }
-             }
+            }
             catch (Exception ex)
             {
                 return BadRequest("Bad Request");
                 throw;
             }
         }
+        #endregion
+
+        #region Update Post
         [HttpPost]
         public IHttpActionResult UpdatePost(HttpPostedFileBase test)
         {
             return Ok("");
-        }
+        } 
+        #endregion
+        #endregion
     }
 }

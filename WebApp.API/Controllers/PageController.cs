@@ -81,13 +81,13 @@ namespace WebApp.API.Controllers
             {
                 string UserId = HttpContext.Current.Request.Headers.Get("UserId").ToString();
                 var result = await this._postsBusiness.GetPagesByUserId(UserId);
-                if(result != null || result.Count != 0)
+                if(result == null || result.Count == 0)
                 {
-                    return Ok(result);
+                    return Ok("No Result Found");
                 }
                 else
                 {
-                    return Ok("No Result Found");
+                    return Ok(result);
                 }
             }
             catch (Exception ex)

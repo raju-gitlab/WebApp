@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
@@ -8,6 +9,7 @@ using WP.Model.Models;
 using WP.Repository.Interfaces;
 using WP.Repository.Interfaces.Misc;
 using WP.Utillities.Exceptions;
+using WP.Utillities.Utilities;
 
 namespace WP.Business.Classes
 {
@@ -23,6 +25,23 @@ namespace WP.Business.Classes
         }
         #endregion
 
+        #region Get
+        #region Trends Posts
+        public async Task<List<PostsViewModel>> TrendsPosts()
+        {
+            try
+            {
+                return await this._postsRepository.TrendsPosts();
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
+            }
+        }
+        #endregion
+        #endregion
+
         #region Post
         #region Create post
         public async Task<string> CreatePost(PostsViewModel posts)
@@ -30,8 +49,8 @@ namespace WP.Business.Classes
             try
             {
                 posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
-                posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.PostUUID);
-                posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
+                posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.MediaVisibilityState);
+                /*posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);*/
                 string result = await this._postsRepository.CreatePost(posts);
                 if (!string.IsNullOrEmpty(result))
                 {

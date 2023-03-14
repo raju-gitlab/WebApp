@@ -27,6 +27,8 @@ namespace WebApp.API
             builder.RegisterType<PostsRepository>().As<IPostsRepository>();
             builder.RegisterType<MiscBusiness>().As<IMiscBusiness>();
             builder.RegisterType<MiscRepository>().As<IMiscRepository>();
+            builder.RegisterType<SubscriptionBusiness>().As<ISubscriptionBusiness>();
+            builder.RegisterType<SubscriptionRepository>().As<ISubscriptionRepository>();
             var container = builder.Build();
             var resoolver = new AutofacWebApiDependencyResolver(container);
             GlobalConfiguration.Configuration.DependencyResolver = resoolver;

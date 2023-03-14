@@ -224,6 +224,45 @@ namespace WP.Repository.Classes
         }
         #endregion
 
+        #region Trend Posts
+        public async Task<List<PostsViewModel>> TrendsPosts()
+        {
+            try
+            {
+                List<PostsViewModel> Posts = new List<PostsViewModel>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        while (await rdr.ReadAsync())
+                        {
+                            Posts.Add(new PostsViewModel
+                            {
+                                FilePath = !string.IsNullOrEmpty(rdr["FilePath"].ToString()) ? rdr["FilePath"].ToString() : string.Empty,
+                                PostCategoryName = !string.IsNullOrEmpty(rdr["PostCategoryName"].ToString()) ? rdr["PostCategoryName"].ToString() : string.Empty,
+                                PostTags = !string.IsNullOrEmpty(rdr["PostTags"].ToString()) ? rdr["PostTags"].ToString() : string.Empty,
+                                PostTitle = !string.IsNullOrEmpty(rdr["PostTitle"].ToString()) ? rdr["PostTitle"].ToString() : string.Empty,
+                                PostUUID = !string.IsNullOrEmpty(rdr["PostUUID"].ToString()) ? rdr["PostUUID"].ToString() : string.Empty,
+                                FirstName = !string.IsNullOrEmpty(rdr["FirstName"].ToString()) ? rdr["FirstName"].ToString() : string.Empty,
+                                UserUUID = !string.IsNullOrEmpty(rdr["UserUUID"].ToString()) ? rdr["UserUUID"].ToString() : string.Empty
+                            });
+                        }
+                    }
+                    await con.CloseAsync();
+                }
+                return Posts;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         #endregion
 
         #region Post

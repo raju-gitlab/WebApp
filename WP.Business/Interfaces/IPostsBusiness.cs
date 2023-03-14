@@ -19,5 +19,6 @@ namespace WP.Business.Interfaces
         Task<PostsViewModel> UpdateExistingPost(PostsViewModel post);
         Task<bool> DeletePost(string PostId, string UserId);
         Task<bool> DeletePagePost(string pageId, string PostId);
+        Task<List<PostsViewModel>> TrendsPosts();
     }
 }
