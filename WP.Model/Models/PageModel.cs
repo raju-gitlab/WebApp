@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using WP.Model.Utilities;
 
 namespace WP.Model.Models
@@ -24,7 +19,6 @@ namespace WP.Model.Models
         public bool IsBlocked { get; set; }
         public string PrivacyType { get; set; }
         public string CategoryType { get; set; }
-
     }
     public class PageModifyModel
     {
@@ -41,5 +35,9 @@ namespace WP.Model.Models
         public long LikeCount { get; set; }
         public long SubscribeCount { get; set; }
     }
-
+    public class PageViewModel : PageModel
+    {
+        public bool IsAdminUser { get; set; }
+        public List<PostsViewModel> Posts { get; set; }
+    }
 }

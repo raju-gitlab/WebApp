@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -81,7 +76,7 @@ namespace WebApp.API.Controllers
             {
                 string UserId = HttpContext.Current.Request.Headers.Get("UserId").ToString();
                 var result = await this._postsBusiness.GetPagesByUserId(UserId);
-                if(result == null || result.Count == 0)
+                if (result == null || result.Count == 0)
                 {
                     return Ok("No Result Found");
                 }
@@ -97,6 +92,22 @@ namespace WebApp.API.Controllers
             }
         }
         #endregion
+
+        #region PageDetailsByAuthPageUsers
+        public async Task<IHttpActionResult> PageDetails()
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
+            }
+        }
+        #endregion
+
         #endregion
 
         #region POST
@@ -126,12 +137,12 @@ namespace WebApp.API.Controllers
 
         #region PUT
         [HttpPut]
-        public async Task<IHttpActionResult> UpdatePageinfo([FromBody]PageModifyModel page)
+        public async Task<IHttpActionResult> UpdatePageinfo([FromBody] PageModifyModel page)
         {
             try
             {
                 var result = await this._postsBusiness.ModifyPage(page);
-                if(result != null)
+                if (result != null)
                 {
                     return Ok(result);
                 }

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
 using WP.Repository.Interfaces.Misc;
-using WP.Utillities.Exceptions;
 using WP.Utillities.Utilities;
 
 namespace WP.Business.Classes
@@ -73,8 +69,9 @@ namespace WP.Business.Classes
         public async Task<string> CreatePagePost(PostsViewModel posts)
         {
             posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
-            posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.PostUUID);
+            posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.PostCategoryName);
             posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);
+            posts.PageserialId = await this._miscRepository.GetPageId(posts.PageUUID);
             if(posts.Userserialid == -1)
             {
                 return "";
@@ -84,6 +81,10 @@ namespace WP.Business.Classes
                 return "";
             }
             else if (posts.Privacyserialid == -1)
+            {
+                return "";
+            }
+            else if(posts.PageserialId == -1)
             {
                 return "";
             }

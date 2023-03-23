@@ -325,23 +325,29 @@ namespace WP.Repository.Classes
                 " ( PostTitle, PostDescription, UserId, PageId, PostCategory, MediaVisibility, FilePath, CreatedOn,ModifiedOn,LikeCount," +
                 " DislikeCount, SpamReportCount, IsDeleted, IsBlocked, PostUUID)" +
                 " VALUES" +
-                " (@PostTitle, @PostDescription, (select Id from usertbl u where UserGuid = @userid), (select Id from pages where PageUUID = @pageid), (select Id from categories where CategoryUUID = @categoryid), (select Id from privacycategory where PrivacyUUID = @privacyid), @FilePath, @CreatedOn,@ModifiedOn,0," +
-                " 0, 0, 0, 0, @postUUID";
+                " (@PostTitle, @PostDescription, @userid, @pageid, @categoryid, @privacyid, @FilePath, @CreatedOn,@ModifiedOn,@LikeCount," +
+                " @DislikeCount, @SpamReportCount, @IsDeleted, @IsBlocked, @postUUID)";
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add(new MySqlParameter("userid", posts.UserId));
-                        cmd.Parameters.Add(new MySqlParameter("privacy", posts.MediaVisibilityState));
-                        cmd.Parameters.Add(new MySqlParameter("", posts.PostCategoryName));
-                        cmd.Parameters.AddWithValue("", posts.PostTitle);
-                        cmd.Parameters.AddWithValue("", posts.PostDescription);
-                        cmd.Parameters.AddWithValue("", posts.FilePath);
-                        cmd.Parameters.AddWithValue("CreatedOn", DateTime.UtcNow);
-                        cmd.Parameters.AddWithValue("ModifiedOn", DateTime.UtcNow);
-                        cmd.Parameters.AddWithValue("PageUUID", UUID);
+                        cmd.Parameters.AddWithValue("@userid", posts.Userserialid);
+                        cmd.Parameters.AddWithValue("@pageId", posts.PageserialId);
+                        cmd.Parameters.AddWithValue("@categoryId", posts.Cateoryserialid);
+                        cmd.Parameters.AddWithValue("@privacyId", posts.Privacyserialid);
+                        cmd.Parameters.AddWithValue("@PostTitle", posts.PostTitle);
+                        cmd.Parameters.AddWithValue("@PostDescription", posts.PostDescription);
+                        cmd.Parameters.AddWithValue("@LikeCount", posts.LikeCount);
+                        cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
+                        cmd.Parameters.AddWithValue("@SpamReportCount", posts.SpamReportCount);
+                        cmd.Parameters.AddWithValue("@IsDeleted", false);
+                        cmd.Parameters.AddWithValue("@IsBlocked", false);
+                        cmd.Parameters.AddWithValue("@FilePath", (string.IsNullOrEmpty(posts.FilePath)) ? "emprt" : posts.FilePath);
+                        cmd.Parameters.AddWithValue("@CreatedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
+                        cmd.Parameters.AddWithValue("@postUUID", UUID);
 
                         if (await cmd.ExecuteNonQueryAsync() > 0)
                         {

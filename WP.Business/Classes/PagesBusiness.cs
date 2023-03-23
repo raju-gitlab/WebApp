@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
@@ -129,6 +127,21 @@ namespace WP.Business.Classes
 
         #endregion
 
+        #region PageDetails
+        public async Task<PageViewModel> PageDetails(string PageId, string UserId)
+        {
+            try
+            {
+                return await this._postsRepository.PageDetails(PageId, UserId);
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Post
@@ -215,11 +228,6 @@ namespace WP.Business.Classes
             }
         }
 
-        Task<Tuple<PageModel, List<PostsViewModel>>> IPagesBusiness.PageById(string PageId)
-        {
-            return this._postsRepository.PageById(PageId);
-            throw new NotImplementedException();
-        }
         #endregion
         #endregion
     }

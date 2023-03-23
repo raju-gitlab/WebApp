@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -11,10 +13,6 @@ namespace WebApp.API.Controllers
     {
         #region Consts
         private readonly IPostsBusiness _postsBusiness;
-        public PostsController()
-        {
-
-        }
         public PostsController(IPostsBusiness postsBusiness)
         {
             this._postsBusiness = postsBusiness;
@@ -48,15 +46,23 @@ namespace WebApp.API.Controllers
         #endregion
 
         #region Post
-        #region AddPost1
+        #region Create page post
         [HttpPost]
-        public async Task<IHttpActionResult> AddPost1(HttpPostedFile filename)
+        public async Task<IHttpActionResult> CreatePagePost(PostsViewModel post)
         {
-            return Ok();
+            var result = await this._postsBusiness.CreatePagePost(post);
+            if(!string.IsNullOrEmpty(result))
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
         #endregion
 
-        #region Add Page Post
+        #region Add Post
         [HttpPost]
         public async Task<IHttpActionResult> AddPost([FromBody] PostsViewModel posts)
         {
@@ -85,8 +91,44 @@ namespace WebApp.API.Controllers
         public IHttpActionResult UpdatePost(HttpPostedFileBase test)
         {
             return Ok("");
-        } 
+        }
         #endregion
         #endregion
+
+        [HttpPost]
+        public IHttpActionResult UploadFile()
+        {
+            string result = "";
+            try
+            {
+                string fileName = null;
+                string imageName = null;
+                var httpRequest = HttpContext.Current.Request;
+                var postedImage = httpRequest.Files["ImageUpload"];
+                var postedFile = httpRequest.Files["FileUpload"];
+                var UserName = httpRequest.Form["UserName"];
+                if (postedImage != null)
+                {
+                    imageName = new String(Path.GetFileNameWithoutExtension(postedImage.FileName).Take(10).ToArray()).Replace(" ", "-");
+                    imageName = imageName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(postedImage.FileName);
+                    var filePath = HttpContext.Current.Server.MapPath("~/Files/" + imageName);
+                    postedImage.SaveAs(filePath);
+                }
+                if (postedFile != null)
+                {
+                    fileName = new String(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(postedFile.FileName);
+                    var filePath = HttpContext.Current.Server.MapPath("~/Files/" + fileName);
+                    postedFile.SaveAs(filePath);
+                }
+                var Image = imageName;
+                var DocFile = fileName;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return Ok(result);
+        }
     }
 }

@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using WP.Utillities.Utilities;
 
 namespace WP.Repository.Classes
 {
@@ -185,8 +183,8 @@ namespace WP.Repository.Classes
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "select ut.FirstName, Ut.lastName, p.PageName, p.LikesCount, p.subscribers, p.ProfileImagePath, p.PageUUID from pages p "
-                +"inner join usertbl ut on ut.Id = p.OwnerId "
+                string query = "select ut.FirstName, Ut.lastName, p.PageName, p.PageDescription, p.LikesCount, p.subscribers, p.ProfileImagePath, p.PageUUID from pages p "
+                + "inner join usertbl ut on ut.Id = p.OwnerId "
                 + "where ut.UserGuid = @userid";
                 List<PageCardModel> UserPages = new List<PageCardModel>();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
@@ -205,7 +203,8 @@ namespace WP.Repository.Classes
                                 ProfileImagePath = (!string.IsNullOrEmpty(rdr["ProfileImagePath"].ToString())) ? rdr["ProfileImagePath"].ToString() : null,
                                 LikeCount = (!string.IsNullOrEmpty(rdr["LikesCount"].ToString())) ? Convert.ToInt64(rdr["LikesCount"].ToString()) : 0,
                                 SubscribeCount = (!string.IsNullOrEmpty(rdr["Subscribers"].ToString())) ? Convert.ToInt64(rdr["Subscribers"].ToString()) : 0,
-                                PageUUID = (!string.IsNullOrEmpty(rdr["PageUUID"].ToString())) ? rdr["PageUUID"].ToString() : null
+                                PageUUID = (!string.IsNullOrEmpty(rdr["PageUUID"].ToString())) ? rdr["PageUUID"].ToString() : null,
+                                PageDescription = (!string.IsNullOrEmpty(rdr["PageDescription"].ToString())) ? (rdr["PageDescription"].ToString().Length > 47) ? rdr["PageDescription"].ToString().Substring(0,47) + "...".ToString() : rdr["PageDescription"].ToString() : "No Description available"
                             });
                         }
                         await con.CloseAsync();
@@ -222,8 +221,77 @@ namespace WP.Repository.Classes
             }
             catch (Exception ex)
             {
+                await LogManager.Log(ex);
+                return null;
+            }
+        }
+        #endregion
 
-                throw;
+        #region PageDetails
+        public async Task<PageViewModel> PageDetails(string PageId, string UserId)
+        {
+            try
+            {
+                PageViewModel Page = new PageViewModel();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "SELECT p.PageName, p.PageDescription,p.ProfileImagePath,p.Subscribers,p.LikesCount, p.CreatedDate,p.ModifiedDate,p.PageUUID,\r\n\tp.IsActived,p.IsBlocked,pc.Privacytype, p.PageType\r\n\tFROM pages p \r\n    inner join privacycategory pc on pc.Id = p.PrivacyType\r\n    where PageId = (select Id from Pages where PageUUID = PageId) and OwnerId = (select Id from usertbl where UserGuid = UserId);";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@", PageId));
+                        cmd.Parameters.Add(new MySqlParameter("@", UserId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if(await rdr.ReadAsync())
+                        {
+                            Page.PageName = rdr[""].ToString();
+                            Page.PageDescription= rdr[""].ToString();
+                            Page.CategoryType= rdr[""].ToString();
+                            Page.PageUUID = rdr[""].ToString();
+                            Page.Subscribers = int.Parse( rdr[""].ToString());
+                            Page.LikesCount = int.Parse( rdr[""].ToString());
+                            Page.CreatedDate = DateTime.Parse( rdr[""].ToString());
+                            Page.ModifiedDate = DateTime.Parse( rdr[""].ToString());
+                            Page.PageUUID = rdr[""].ToString();
+                        }
+                    }
+                    if(Page != null)
+                    {
+                        query = "";
+                        using(MySqlCommand cmd = new MySqlCommand(query, con))
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.Add(new MySqlParameter("@", PageId));
+                            cmd.Parameters.Add(new MySqlParameter("@", UserId));
+                            DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                            while(await rdr.ReadAsync())
+                            {
+                                Page.Posts.Add(new PostsViewModel
+                                {
+                                    PostTitle = rdr["Title"].ToString(),
+                                    PostCategoryName = rdr["Category"].ToString(),
+                                    CreatedDate = DateTime.Parse(rdr[""].ToString()),
+                                    ModifiedDate = DateTime.Parse(rdr[""].ToString()),
+                                    FilePath = rdr["Title"].ToString(),
+                                    MediaVisibilityState = rdr["Title"].ToString(),
+                                    PostUUID = rdr["Category"].ToString()
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                return Page;
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
             }
         }
         #endregion
@@ -308,10 +376,10 @@ namespace WP.Repository.Classes
                     }
                 }
             }
-            catch (Exception exs)
+            catch (Exception ex)
             {
-
-                throw;
+                await LogManager.Log(ex);
+                return null;
             }
         }
         #endregion

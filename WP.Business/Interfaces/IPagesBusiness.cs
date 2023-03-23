@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WP.Model.Models;
 
@@ -10,6 +8,7 @@ namespace WP.Business.Interfaces
     public interface IPagesBusiness
     {
         Task<List<PageCardModel>> GetPagesByUserId(string UserId);
+        Task<PageViewModel> PageDetails(string PageId, string UserId);
         Task<List<PageModel>> ListPages();
         Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId);
         Task<List<PageModel>> ListPagesbyfilter(string[] filters);

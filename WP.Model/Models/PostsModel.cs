@@ -18,6 +18,7 @@ namespace WP.Model.Models
         public string PostUUID { get; set; }
         public string UserUUID { get; set; }
         public string PostTags { get; set; }
+        public string PageUUID { get; set; }
     }
     public class PostsViewModel : CreatePostModel
     {
