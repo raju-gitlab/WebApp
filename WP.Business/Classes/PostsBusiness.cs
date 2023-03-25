@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
@@ -46,11 +48,46 @@ namespace WP.Business.Classes
             {
                 posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
                 posts.Cateoryserialid = await this._miscRepository.GetCategoryId(posts.MediaVisibilityState);
-                /*posts.Privacyserialid = await this._miscRepository.GetPrivacyId(posts.MediaVisibilityState);*/
                 string result = await this._postsRepository.CreatePost(posts);
                 if (!string.IsNullOrEmpty(result))
                 {
-                    return result;
+                    if(posts.UniqueTags.Length > 0)
+                    {
+                        string[] PostTagslist = posts.UniqueTags.Split(',');
+                        string str = "";
+                        if (await this._postsRepository.AddTags(PostTagslist))
+                        {
+                            string[] tags = posts.PostTags.Split(',');
+                            tags.Union(PostTagslist);
+                            var str1 = "";
+                            if (await this._postsRepository.UpdateTagslist(tags, result))
+                            {
+                                return result;
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        string[] tags = posts.PostTags.Split(',');
+                        tags.Union(posts.UniqueTags.Split(','));
+                        var str1 = "";
+                        if (await this._postsRepository.UpdateTagslist(tags, result))
+                        {
+                            return result;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
                 }
                 else
                 {
@@ -59,13 +96,12 @@ namespace WP.Business.Classes
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
         #endregion
 
-        #region MyRegion
+        #region Create Page Post
         public async Task<string> CreatePagePost(PostsViewModel posts)
         {
             posts.Userserialid = await this._miscRepository.GetUserId(posts.UserUUID);
@@ -94,6 +130,31 @@ namespace WP.Business.Classes
             }
         }
 
+        #endregion
+
+        #region Tags
+        #region Post
+        #region AddTags
+        public async Task<bool> AddTags(string[] tags)
+        {
+            if(tags.Length == 0)
+            {
+                return true;
+            }
+            else
+            {
+                if(await this._postsRepository.AddTags(tags))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        #endregion  
+        #endregion
         #endregion
 
         public Task<bool> DeletePagePost(string pageId, string PostId)
@@ -150,6 +211,28 @@ namespace WP.Business.Classes
         {
             throw new NotImplementedException();
         }
+
+
+        #region UpdateTagslist
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId)
+        {
+            try
+            {
+                if(tags.Length == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return await this._postsRepository.UpdateTagslist(tags, PostId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
         #endregion
     }
 }

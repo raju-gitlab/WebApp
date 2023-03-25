@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using WP.Model.Utilities;
+﻿using System.Web.Mvc;
 
 namespace WP.Model.Models
 {
     public class CreatePostModel : CommonModel
     {
         public string PostTitle { get; set; }
+        [AllowHtml]
         public string PostDescription { get; set; }
         public int PostCategory { get; set; }
         public int MediaVisibility { get; set; }

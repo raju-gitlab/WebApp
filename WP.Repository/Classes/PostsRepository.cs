@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
@@ -289,11 +291,11 @@ namespace WP.Repository.Classes
                         cmd.Parameters.AddWithValue("@ModifiedOn", DateTime.UtcNow);
                         cmd.Parameters.AddWithValue("@LikeCount", 0);
                         cmd.Parameters.AddWithValue("@DislikeCount", posts.DislikeCount);
-                        cmd.Parameters.AddWithValue("@MediaVisibility", posts.Privacyserialid);
+                        cmd.Parameters.AddWithValue("@MediaVisibility", 1);
                         cmd.Parameters.AddWithValue("@PostUUID", UUID);
                         cmd.Parameters.AddWithValue("@SpamReportCount", 0);
                         cmd.Parameters.AddWithValue("@IsBlocked", false);
-                        cmd.Parameters.AddWithValue("@FilePath", false);
+                        cmd.Parameters.AddWithValue("@FilePath", posts.FilePath);
                         if (await cmd.ExecuteNonQueryAsync() > 0)
                         {
                             return UUID;
@@ -368,6 +370,84 @@ namespace WP.Repository.Classes
         }
         #endregion
 
+        #region Tags
+        #region Post
+
+        #region AddTags
+        public async Task<bool> AddTags(string[] tags)
+        {
+            try
+            {
+                IEnumerable<string> uniqueItems = tags.Distinct<string>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "insert into tags (tagename) values  ";
+                foreach(string str in tags)
+                {
+                    query += $"('{str}'),";
+                }
+                query = query.Remove(query.Length - 1);
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        if(Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion  
+
+        #region UpdateTagslist
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId)
+        {
+            try
+            {
+                string ConnectinoString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                IEnumerable<string> uniqueItems = tags.Distinct<string>();
+                string query = "INSERT INTO Post_tags(PostId, PagePostId, TagId) values ";
+                foreach (string item in uniqueItems)
+                {
+                    query += $"((select Id from Posts where PostUUID = '{PostId}'), '4', (select Id from Tags Where tagename = '{item}'))," ;
+                }
+                query = query.Remove(query.Length - 1);
+                using (MySqlConnection con = new MySqlConnection(ConnectinoString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        if(Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+        #endregion
+        #endregion
         #endregion
 
         #region PUT

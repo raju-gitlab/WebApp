@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,6 @@ namespace WP.Model.Models
     {
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public string UniqueTags { get; set; }
     }
 }

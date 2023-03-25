@@ -63,14 +63,29 @@ namespace WebApp.API.Controllers
         #endregion
 
         #region Add Post
-        [HttpPost]
-        public async Task<IHttpActionResult> AddPost([FromBody] PostsViewModel posts)
+        [HttpPost, System.Web.Mvc.ValidateInput(false)]
+        public async Task<IHttpActionResult> AddPost()
         {
             try
             {
+                var httpRequest = HttpContext.Current.Request;
+                var file = httpRequest.Files["UploadFile"];
+                string FileName = Guid.NewGuid().ToString().Replace('-', 'a') + "." + file.ContentType.ToString().Split('/')[1];
+                var posts = new PostsViewModel();
+                posts.UserUUID = httpRequest.Form["UserUUID"];
+                posts.PostTitle = httpRequest.Form["PostTitle"];
+                posts.PostDescription = httpRequest.Form["PostDescription"].ToString();
+                posts.MediaVisibilityState = httpRequest.Form["MediaVisibilityState"];
+                posts.PostCategoryName = httpRequest.Form["PostCategoryName"];
+                posts.UserUUID = httpRequest.Form["UserUUID"];
+                posts.PostTags = httpRequest.Form["AllTags"];
+                posts.UniqueTags = httpRequest.Form["UniqueTags"];
+                posts.FilePath = FileName;
                 string result = await this._postsBusiness.CreatePost(posts);
                 if (!String.IsNullOrEmpty(result))
                 {
+                    var filePath = HttpContext.Current.Server.MapPath("~/Files/PostImages/" + FileName);
+                    file.SaveAs(filePath);
                     return Ok(result);
                 }
                 else

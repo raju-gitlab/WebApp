@@ -20,5 +20,7 @@ namespace WP.Business.Interfaces
         Task<bool> DeletePost(string PostId, string UserId);
         Task<bool> DeletePagePost(string pageId, string PostId);
         Task<List<PostsViewModel>> TrendsPosts();
+        Task<bool> UpdateTagslist(string[] tags, string PostId);
+        Task<bool> AddTags(string[] tags);
     }
 }
