@@ -12,12 +12,12 @@ namespace WP.Repository.Interfaces
         Task<List<PostsViewModel>> GetPostsByCustomeFindAttributes();
         Task<string> CreatePost(PostsViewModel posts);
         Task<string> CreatePagePost(PostsViewModel posts);
-        Task<List<PostsViewModel>> UserPosts(string UserId, string PageId);
+        Task<PageDetailsModel> UserPosts(string UserId, string PageId);
         Task<PostsViewModel> UpdateExistingPost(CreatePostModel post);
         Task<bool> DeletePost(string PostId, string UserId);
         Task<bool> DeletePagePost(string pageId, string PostId);
         Task<List<PostsViewModel>> TrendsPosts();
-        Task<bool> UpdateTagslist(string[] tags, string PostId);
+        Task<bool> UpdateTagslist(string[] tags, string PostId, int PostType);
         Task<bool> AddTags(string[] tags);
     }
 }

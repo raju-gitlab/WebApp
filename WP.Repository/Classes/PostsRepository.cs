@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
@@ -26,19 +25,19 @@ namespace WP.Repository.Classes
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Posts p"+
+                string query = "SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Posts p" +
                 " INNER JOIN postcategories pg ON pg.Id = p.PostCategory " +
                 " INNER JOIN usertbl u ON u.Id = p.UserId " +
                 " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1 ORDER BY p.CreatedOn ASC";
                 List<PostsViewModel> result = null;
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
-                        while(await rdr.ReadAsync())
+                        while (await rdr.ReadAsync())
                         {
                             result.Add(new PostsViewModel
                             {
@@ -61,7 +60,7 @@ namespace WP.Repository.Classes
                     }
                 }
 
-                if(result != null)
+                if (result != null)
                 {
                     return result;
                 }
@@ -85,10 +84,10 @@ namespace WP.Repository.Classes
                 List<PostsViewModel> result = null;
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.Parameters.Add(new MySqlParameter("@userid", UserId));
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
@@ -134,7 +133,7 @@ namespace WP.Repository.Classes
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("", category));
@@ -172,48 +171,80 @@ namespace WP.Repository.Classes
         #endregion
 
         #region UserPosts
-        public async Task<List<PostsViewModel>> UserPosts(string UserId, string PageId)
+        public async Task<PageDetailsModel> UserPosts(string UserId, string PageId)
         {
             try
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "";
-                List<PostsViewModel> result = null;
+                string query = "SELECT p.PostTitle, p.PostDescription, p.FilePath, p.CreatedOn, p.ModifiedOn, p.LikeCount, p.DislikeCount,p.SpamReportCount, p.IsDeleted," +
+                    " p.IsBlocked, p.PostUUID, c.CategoryName, pc.PrivacyType" +
+                    " FROM page_specific_posts p" +
+                    " left join Categories c on c.Id = p.PostCategory" +
+                    " left join Privacycategory pc on pc.Id = p.MediaVisibility" +
+                    " where p.PageId = (select Id from Pages where PageUUID = @pageId) and p.UserId = (select Id from usertbl where UserGuid = @UserId)";
+                PageDetailsModel result = new PageDetailsModel();
+                result.PageDetails = new PageModel();
+                result.Posts = new List<PostsViewModel>();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        //cmd.Parameters.Add(new MySqlParameter("", category));
+                        cmd.Parameters.Add(new MySqlParameter("@pageId", PageId));
+                        cmd.Parameters.Add(new MySqlParameter("@UserId", UserId));
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while (await rdr.ReadAsync())
                         {
-                            result.Add(new PostsViewModel
+                            result.Posts.Add(new PostsViewModel
                             {
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
                                 FilePath = (rdr["FilePath"].ToString() != null) ? rdr["FilePath"].ToString() : null,
-                                CreatedDate = (rdr["CreatedDate"].ToString() != null) ? DateTime.Parse(rdr["CreatedDate"].ToString()) : DateTime.Parse(null),
-                                ModifiedDate = (rdr["ModifiedDate"].ToString() != null) ? DateTime.Parse(rdr["ModifiedDate"].ToString()) : DateTime.Parse(null),
+                                CreatedDate = (rdr["CreatedOn"].ToString() != null) ? DateTime.Parse(rdr["CreatedOn"].ToString()) : DateTime.Parse(null),
+                                ModifiedDate = (rdr["ModifiedOn"].ToString() != null) ? DateTime.Parse(rdr["ModifiedOn"].ToString()) : DateTime.Parse(null),
                                 DislikeCount = (Convert.ToInt64(rdr["DislikeCount"].ToString()) != -1) ? Convert.ToInt64(rdr["DislikeCount"].ToString()) : 0,
                                 LikeCount = (Convert.ToInt64(rdr["LikeCount"].ToString()) != -1) ? Convert.ToInt64(rdr["LikeCount"].ToString()) : 0,
                                 IsBlocked = Convert.ToBoolean(rdr["IsBlocked"]),
-                                PostCategoryName = (rdr["PostCategoryName"].ToString() != null) ? rdr["PostCategoryName"].ToString() : null,
+                                PostCategoryName = (rdr["CategoryName"].ToString() != null) ? rdr["CategoryName"].ToString() : null,
                                 SpamReportCount = (Convert.ToInt64(rdr["SpamReportCount"].ToString()) != -1) ? Convert.ToInt64(rdr["SpamReportCount"].ToString()) : 0,
                                 PostUUID = (rdr["PostUUID"].ToString() != null) ? rdr["PostUUID"].ToString() : null,
-                                MediaVisibilityState = (rdr["MediaVisibilityState"].ToString() != null) ? rdr["MediaVisibilityState"].ToString() : null
+                                MediaVisibilityState = (rdr["Privacytype"].ToString() != null) ? rdr["Privacytype"].ToString() : null
                             });
                         }
-                        cmd.Dispose();
                         await con.CloseAsync();
+                    }
+                    await con.OpenAsync();
+                    query = "SELECT p.PageName, p.PageDescription, p.ProfileImagePath, p.PageUUID, c.CategoryName, p.CreatedDate,p.IsActived, p.LikesCount,p.Subscribers, pc.PrivacyType, p.IsBlocked" +
+                   " FROM pages p" +
+                   " inner join categories c on c.Id = p.PageType" +
+                   " inner join privacycategory pc on pc.Id = p.Privacytype" +
+                   " where p.PageUUID = @pageId";
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PageId", PageId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        if (await rdr.ReadAsync())
+                        {
+                            result.PageDetails.PageName = (!string.IsNullOrEmpty(rdr["PageName"].ToString()) ? rdr["PageName"].ToString() : null);
+                            result.PageDetails.PageDescription = (!string.IsNullOrEmpty(rdr["PageDescription"].ToString()) ? rdr["PageDescription"].ToString() : null);
+                            result.PageDetails.ProfileImagePath = (!string.IsNullOrEmpty(rdr["ProfileImagePath"].ToString()) ? rdr["ProfileImagePath"].ToString() : null);
+                            result.PageDetails.PageUUID = (!string.IsNullOrEmpty(rdr["PageUUID"].ToString()) ? rdr["PageUUID"].ToString() : null);
+                            result.PageDetails.CategoryType = (!string.IsNullOrEmpty(rdr["CategoryName"].ToString()) ? rdr["CategoryName"].ToString() : null);
+                            result.PageDetails.CreatedDate = (!string.IsNullOrEmpty(rdr["CreatedDate"].ToString()) ? DateTime.Parse(rdr["CreatedDate"].ToString()) : DateTime.MinValue);
+                            result.PageDetails.IsActivated = (!string.IsNullOrEmpty(rdr["IsActived"].ToString()) ? Convert.ToBoolean(rdr["IsActived"].ToString()) : false);
+                            result.PageDetails.LikesCount = (!string.IsNullOrEmpty(rdr["LikesCount"].ToString()) ? Convert.ToInt64(rdr["LikesCount"].ToString()) : 0);
+                            result.PageDetails.Subscribers = (!string.IsNullOrEmpty(rdr["Subscribers"].ToString()) ? Convert.ToInt64(rdr["Subscribers"].ToString()) : 0);
+                            result.PageDetails.PrivacyType = (!string.IsNullOrEmpty(rdr["PrivacyType"].ToString()) ? Convert.ToString(rdr["PrivacyType"].ToString()) : null);
+                            result.PageDetails.IsBlocked = (!string.IsNullOrEmpty(rdr["IsBlocked"].ToString()) ? Convert.ToBoolean(rdr["IsBlocked"].ToString()) : true);
+                        }
                     }
                 }
                 return result;
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -234,10 +265,10 @@ namespace WP.Repository.Classes
                 List<PostsViewModel> Posts = new List<PostsViewModel>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         DbDataReader rdr = await cmd.ExecuteReaderAsync();
@@ -381,7 +412,7 @@ namespace WP.Repository.Classes
                 IEnumerable<string> uniqueItems = tags.Distinct<string>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "insert into tags (tagename) values  ";
-                foreach(string str in tags)
+                foreach (string str in tags)
                 {
                     query += $"('{str}'),";
                 }
@@ -389,10 +420,10 @@ namespace WP.Repository.Classes
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        if(Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
                         {
                             return true;
                         }
@@ -411,16 +442,26 @@ namespace WP.Repository.Classes
         #endregion  
 
         #region UpdateTagslist
-        public async Task<bool> UpdateTagslist(string[] tags, string PostId)
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId, int PostType)
         {
             try
             {
                 string ConnectinoString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 IEnumerable<string> uniqueItems = tags.Distinct<string>();
                 string query = "INSERT INTO Post_tags(PostId, PagePostId, TagId) values ";
-                foreach (string item in uniqueItems)
+                if(PostType == 1)
                 {
-                    query += $"((select Id from Posts where PostUUID = '{PostId}'), '4', (select Id from Tags Where tagename = '{item}'))," ;
+                    foreach (string item in uniqueItems)
+                    {
+                        query += $"((select Id from Posts where PostUUID = '{PostId}'), '4', (select Id from Tags Where tagename = '{item}')),";
+                    }
+                }
+                else
+                {
+                    foreach (string item in uniqueItems)
+                    {
+                        query += $"('4', (select Id from page_specific_posts where PostUUID = '{PostId}'), (select Id from Tags Where tagename = '{item}')),";
+                    }
                 }
                 query = query.Remove(query.Length - 1);
                 using (MySqlConnection con = new MySqlConnection(ConnectinoString))
@@ -429,7 +470,7 @@ namespace WP.Repository.Classes
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        if(Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
                         {
                             return true;
                         }
@@ -448,6 +489,7 @@ namespace WP.Repository.Classes
         #endregion
         #endregion
         #endregion
+
         #endregion
 
         #region PUT
@@ -534,16 +576,16 @@ namespace WP.Repository.Classes
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "";
-                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
-                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
                         cmd.Parameters.Add(new MySqlParameter("", pageId));
                         cmd.Parameters.Add(new MySqlParameter("", PostId));
 
-                        if(await cmd.ExecuteNonQueryAsync() > 0)
+                        if (await cmd.ExecuteNonQueryAsync() > 0)
                         {
                             await con.CloseAsync();
                             return true;
@@ -562,7 +604,7 @@ namespace WP.Repository.Classes
             }
         }
 
-        
+
         #endregion
         #endregion
     }

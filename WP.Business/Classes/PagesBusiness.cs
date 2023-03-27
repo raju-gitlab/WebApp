@@ -22,6 +22,19 @@ namespace WP.Business.Classes
         #endregion
 
         #region Get
+        #region UserRoles
+        public async Task<List<RolesModel>> UserRoles()
+        {
+            try
+            {
+                return await this._postsRepository.UserRoles();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
         #region Check validity
         public async Task<bool> IsValid(string pageName)
         {

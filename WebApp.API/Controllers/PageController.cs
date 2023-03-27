@@ -20,6 +20,22 @@ namespace WebApp.API.Controllers
         #endregion
 
         #region Get
+        #region GetRoles
+        public async Task<IHttpActionResult> GetRolesList()
+        {
+            try
+            {
+                var result = await this._postsBusiness.UserRoles();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw;
+            }
+        }
+        #endregion
+
         #region AllPages
         [HttpGet]
         public async Task<IHttpActionResult> AllPages()
@@ -111,6 +127,8 @@ namespace WebApp.API.Controllers
         #endregion
 
         #region POST
+
+        #region CreatePage
         [HttpPost]
         public async Task<IHttpActionResult> CreatePage([FromBody] PageModel pages)
         {
@@ -132,7 +150,9 @@ namespace WebApp.API.Controllers
 
                 throw;
             }
-        }
+        } 
+        #endregion
+        
         #endregion
 
         #region PUT

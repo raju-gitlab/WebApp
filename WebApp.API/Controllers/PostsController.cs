@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -43,21 +44,60 @@ namespace WebApp.API.Controllers
             }
         }
         #endregion
+
+        #region Get Page Posts
+        [HttpGet]
+        public async Task<IHttpActionResult> PagePosts(string UserId, string PageId)
+        {
+            try
+            {
+                var result = await this._postsBusiness.UserPosts(UserId, PageId);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
         #endregion
 
         #region Post
         #region Create page post
-        [HttpPost]
-        public async Task<IHttpActionResult> CreatePagePost(PostsViewModel post)
+        [HttpPost, System.Web.Mvc.ValidateInput(false)]
+        public async Task<IHttpActionResult> CreatePagePost()
         {
-            var result = await this._postsBusiness.CreatePagePost(post);
-            if(!string.IsNullOrEmpty(result))
+            try
             {
-                return Ok(result);
+                var httpRequest = HttpContext.Current.Request;
+                var file = httpRequest.Files["UploadFile"];
+                string FileName = Guid.NewGuid().ToString().Replace('-', 'a') + "." + file.ContentType.ToString().Split('/')[1];
+                var posts = new PostsViewModel();
+                posts.PageUUID = httpRequest.Form["PageUUID"];
+                posts.UserUUID = httpRequest.Form["UserUUID"];
+                posts.PostTitle = httpRequest.Form["PostTitle"];
+                posts.PostDescription = httpRequest.Form["PostDescription"].ToString();
+                posts.MediaVisibilityState = httpRequest.Form["MediaVisibilityState"];
+                posts.PostCategoryName = httpRequest.Form["PostCategoryName"];
+                posts.UserUUID = httpRequest.Form["UserUUID"];
+                posts.PostTags = httpRequest.Form["AllTags"];
+                posts.UniqueTags = httpRequest.Form["UniqueTags"];
+                posts.FilePath = FileName;
+                string result = await this._postsBusiness.CreatePagePost(posts);
+                if (!String.IsNullOrEmpty(result))
+                {
+                    var filePath = HttpContext.Current.Server.MapPath("~/Files/PagePostImages/" + FileName);
+                    file.SaveAs(filePath);
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest("Bad Request");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                throw;
             }
         }
         #endregion
@@ -108,8 +148,8 @@ namespace WebApp.API.Controllers
             return Ok("");
         }
         #endregion
-        #endregion
-
+        
+        #region UploadFile
         [HttpPost]
         public IHttpActionResult UploadFile()
         {
@@ -145,5 +185,8 @@ namespace WebApp.API.Controllers
             }
             return Ok(result);
         }
+        #endregion
+
+        #endregion
     }
 }

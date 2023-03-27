@@ -60,7 +60,7 @@ namespace WP.Business.Classes
                             string[] tags = posts.PostTags.Split(',');
                             tags.Union(PostTagslist);
                             var str1 = "";
-                            if (await this._postsRepository.UpdateTagslist(tags, result))
+                            if (await this._postsRepository.UpdateTagslist(tags, result, 1))
                             {
                                 return result;
                             }
@@ -79,7 +79,7 @@ namespace WP.Business.Classes
                         string[] tags = posts.PostTags.Split(',');
                         tags.Union(posts.UniqueTags.Split(','));
                         var str1 = "";
-                        if (await this._postsRepository.UpdateTagslist(tags, result))
+                        if (await this._postsRepository.UpdateTagslist(tags, result, 1))
                         {
                             return result;
                         }
@@ -110,26 +110,67 @@ namespace WP.Business.Classes
             posts.PageserialId = await this._miscRepository.GetPageId(posts.PageUUID);
             if(posts.Userserialid == -1)
             {
-                return "";
+                return string.Empty;
             }
             else if (posts.Cateoryserialid == -1)
             {
-                return "";
+                return string.Empty;
             }
             else if (posts.Privacyserialid == -1)
             {
-                return "";
+                return string.Empty;
             }
             else if(posts.PageserialId == -1)
             {
-                return "";
+                return string.Empty;
             }
             else
             {
-                return await this._postsRepository.CreatePagePost(posts);
+                string result = await this._postsRepository.CreatePagePost(posts);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    if (posts.UniqueTags.Length > 0)
+                    {
+                        string[] PostTagslist = posts.UniqueTags.Split(',');
+                        if (await this._postsRepository.AddTags(PostTagslist))
+                        {
+                            string[] tags = posts.PostTags.Split(',');
+                            tags.Union(PostTagslist);
+                            if (await this._postsRepository.UpdateTagslist(tags, result, 2))
+                            {
+                                return result;
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        string[] tags = posts.PostTags.Split(',');
+                        tags.Union(posts.UniqueTags.Split(','));
+                        var str1 = "";
+                        if (await this._postsRepository.UpdateTagslist(tags, result, 1))
+                        {
+                            return result;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
-
         #endregion
 
         #region Tags
@@ -207,14 +248,28 @@ namespace WP.Business.Classes
             throw new NotImplementedException();
         }
 
-        public Task<List<PostsViewModel>> UserPosts(string UserId, string PageId)
+        public async Task<PageDetailsModel> UserPosts(string UserId, string PageId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if(string.IsNullOrEmpty(UserId) || string.IsNullOrEmpty(PageId))
+                {
+                    return null;
+                }
+                else
+                {
+                    return await this._postsRepository.UserPosts(UserId, PageId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
 
         #region UpdateTagslist
-        public async Task<bool> UpdateTagslist(string[] tags, string PostId)
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId, int PostType)
         {
             try
             {
@@ -224,7 +279,7 @@ namespace WP.Business.Classes
                 }
                 else
                 {
-                    return await this._postsRepository.UpdateTagslist(tags, PostId);
+                    return await this._postsRepository.UpdateTagslist(tags, PostId, PostType);
                 }
             }
             catch (Exception ex)

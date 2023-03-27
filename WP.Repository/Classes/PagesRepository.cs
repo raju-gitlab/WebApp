@@ -20,6 +20,43 @@ namespace WP.Repository.Classes
 
         #region Get
 
+        #region MyRegion
+        public async Task<List<RolesModel>> UserRoles()
+        {
+            try
+            {
+                List<RolesModel> roles = new List<RolesModel>();
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        MySqlDataReader rdr = cmd.ExecuteReader();
+                        while(await rdr.ReadAsync())
+                        {
+                            roles.Add(new RolesModel
+                            {
+                                RoleName = rdr["RoleName"].ToString(),
+                                RoleId = rdr["RoleId"].ToString()
+                            });
+                        }
+
+                        await con.CloseAsync();
+                    }
+                }
+                return roles;
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw;
+            }
+        }
+        #endregion
+
         #region Listallpages
         public async Task<List<PageModel>> ListPages()
         {

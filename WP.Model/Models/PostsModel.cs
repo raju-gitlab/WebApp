@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Web.Mvc;
 
 namespace WP.Model.Models
 {
@@ -26,5 +27,10 @@ namespace WP.Model.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PostCategoryName { get; set; }
+    }
+    public class PageDetailsModel
+    {
+        public PageModel PageDetails { get; set;}
+        public List<PostsViewModel> Posts { get; set; }
     }
 }

@@ -18,5 +18,6 @@ namespace WP.Repository.Interfaces
         Task<string> CreatePage(PageModel page);
         Task<string> ModifyPage(PageModifyModel page);
         Task<bool> DeletePage(string UserId, string PageId);
+        Task<List<RolesModel>> UserRoles();
     }
 }
