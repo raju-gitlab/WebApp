@@ -131,10 +131,10 @@ namespace WP.Business.Classes
                 {
                     if (posts.UniqueTags.Length > 0)
                     {
-                        string[] PostTagslist = posts.UniqueTags.Split(',');
+                        string[] PostTagslist = posts.UniqueTags.Split(',').AsEnumerable().Where(e => e.Length > 0).ToArray();
                         if (await this._postsRepository.AddTags(PostTagslist))
                         {
-                            string[] tags = posts.PostTags.Split(',');
+                            string[] tags = posts.PostTags.Split(',').AsEnumerable().Where(e => e.Length > 0).ToArray();
                             tags.Union(PostTagslist);
                             if (await this._postsRepository.UpdateTagslist(tags, result, 2))
                             {
@@ -152,7 +152,7 @@ namespace WP.Business.Classes
                     }
                     else
                     {
-                        string[] tags = posts.PostTags.Split(',');
+                        string[] tags = posts.PostTags.Split(',').Select(x => x.ToLower()).Distinct<string>().Where(x => x.Length > 0).ToArray();
                         tags.Union(posts.UniqueTags.Split(','));
                         var str1 = "";
                         if (await this._postsRepository.UpdateTagslist(tags, result, 1))

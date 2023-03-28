@@ -27,14 +27,14 @@ namespace WP.Repository.Classes
             {
                 List<RolesModel> roles = new List<RolesModel>();
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = "";
+                string query = "SELECT RoleName, RoleId FROM roleslist";
                 using(MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
-                        MySqlDataReader rdr = cmd.ExecuteReader();
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
                         while(await rdr.ReadAsync())
                         {
                             roles.Add(new RolesModel

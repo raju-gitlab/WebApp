@@ -21,6 +21,7 @@ namespace WebApp.API.Controllers
 
         #region Get
         #region GetRoles
+        [HttpGet]
         public async Task<IHttpActionResult> GetRolesList()
         {
             try
