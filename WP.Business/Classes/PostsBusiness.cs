@@ -38,6 +38,20 @@ namespace WP.Business.Classes
             }
         }
         #endregion
+
+        public async Task<List<CreatePostModel>> GetTopPostsByUserId(string UserId)
+        {
+            try
+            {
+                var result = await this._postsRepository.GetTopPostsByUserId(UserId);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
+            }
+        }
         #endregion
 
         #region Post

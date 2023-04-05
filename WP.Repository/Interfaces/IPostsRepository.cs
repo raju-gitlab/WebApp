@@ -7,6 +7,7 @@ namespace WP.Repository.Interfaces
     public interface IPostsRepository
     {
         Task<List<PostsViewModel>> GetAllPosts();
+        Task<List<CreatePostModel>> GetTopPostsByUserId(string UserId);
         Task<List<PostsViewModel>> GetAllPostsByUserId(string UserId);
         Task<List<PostsViewModel>> GetAllPostsByPostCategory(string category);
         Task<List<PostsViewModel>> GetPostsByCustomeFindAttributes();

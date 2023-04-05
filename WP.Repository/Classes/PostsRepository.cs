@@ -5,9 +5,11 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
+using WP.Utillities.Utilities;
 
 namespace WP.Repository.Classes
 {
@@ -488,6 +490,48 @@ namespace WP.Repository.Classes
         }
         #endregion
         #endregion
+        #endregion
+
+        #region Top Posts By User
+        public async Task<List<CreatePostModel>> GetTopPostsByUserId(string UserId)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                List<CreatePostModel> posts = new List<CreatePostModel>();
+                string query = "select PostTitle, PostDescription, FilePath, CreatedOn, LikeCount from page_specific_posts" +
+                    " union all" +
+                    " select PostTitle, PostDescription, FilePath, CreatedOn, LikeCount from posts" +
+                    " where UserId = (select Id from usertbl where UserGuid = @userid) order by LikeCount desc LIMIT 5";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@userid", UserId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        while (rdr.Read()) 
+                        {
+                            posts.Add(new CreatePostModel()
+                            {
+                                PostTitle = !string.IsNullOrEmpty(rdr["PostTitle"].ToString()) ? rdr["PostTitle"].ToString() : string.Empty,
+                                PostDescription = !string.IsNullOrEmpty(rdr["PostDescription"].ToString()) ? rdr["PostDescription"].ToString() : string.Empty,
+                                FilePath = !string.IsNullOrEmpty(rdr["FilePath"].ToString()) ? rdr["FilePath"].ToString() : string.Empty,
+                                CreatedDate = !string.IsNullOrEmpty(rdr["CreatedOn"].ToString()) ? DateTime.Parse(rdr["CreatedOn"].ToString()) : DateTime.Parse("")
+                            });
+                        }
+                    }
+                    await con.CloseAsync();
+                }
+                return posts;
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return null;
+            }
+        } 
         #endregion
 
         #endregion

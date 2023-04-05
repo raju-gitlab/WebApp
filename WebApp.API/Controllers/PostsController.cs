@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Http;
 using WP.Business.Interfaces;
 using WP.Model.Models;
+using WP.Utillities.Utilities;
 
 namespace WebApp.API.Controllers
 {
@@ -57,6 +58,30 @@ namespace WebApp.API.Controllers
             catch (Exception)
             {
                 throw;
+            }
+        }
+        #endregion
+
+        #region MyRegion
+        [HttpGet]
+        public async Task<IHttpActionResult> TopPosts(string UserId)
+        {
+            try
+            {
+                var result = await this._postsBusiness.GetTopPostsByUserId(UserId);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
             }
         }
         #endregion

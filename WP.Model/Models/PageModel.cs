@@ -40,4 +40,10 @@ namespace WP.Model.Models
         public bool IsAdminUser { get; set; }
         public List<PostsViewModel> Posts { get; set; }
     }
+    public class PageUserModel
+    {
+        public string UserId { get; set; }
+        public string PageId { get; set; }
+        public string RoleId { get; set; }
+    }
 }

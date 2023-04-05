@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Management;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Utillities.Utilities;
@@ -151,12 +152,14 @@ namespace WebApp.API.Controllers
 
                 throw;
             }
-        } 
-        #endregion
-        
+        }
         #endregion
 
-        #region PUT
+        #endregion
+
+        #region Put
+
+        #region UpdatePageinfo
         [HttpPut]
         public async Task<IHttpActionResult> UpdatePageinfo([FromBody] PageModifyModel page)
         {
@@ -177,6 +180,30 @@ namespace WebApp.API.Controllers
                 throw;
             }
         }
+        #endregion
+
+        #region Update Modifier for page
+        public async Task<IHttpActionResult> UpdateModifierForPage(PageUserModel pageUser)
+        {
+            try
+            {
+                var result = await this._postsBusiness.UpdateModifierForPage(pageUser);
+                if(result)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw;
+            }
+        }
+        #endregion
         #endregion
     }
 }

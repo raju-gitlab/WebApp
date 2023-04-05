@@ -15,11 +15,11 @@ namespace WP.Model.Models
         public string UserUUID { get; set; }
         public string PostTags { get; set; }
         public string PageUUID { get; set; }
+        public string FilePath { get; set; }
     }
     public class PostsViewModel : CreatePostModel
     {
         public int UserId { get; set; }
-        public string FilePath { get; set; }
         public long LikeCount { get; set; }
         public long DislikeCount { get; set; }
         public long SpamReportCount { get; set; }

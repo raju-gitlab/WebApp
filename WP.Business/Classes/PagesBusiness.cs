@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using WP.Business.Interfaces;
 using WP.Model.Models;
@@ -217,6 +218,21 @@ namespace WP.Business.Classes
                 throw;
             }
         }
+
+        #region Update Modifier For Page
+        public async Task<bool> UpdateModifierForPage(PageUserModel pageUser)
+        {
+            try
+            {
+                return await this._postsRepository.UpdateModifierForPage(pageUser);
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw;
+            }
+        }
+        #endregion
         #endregion
 
         #region Delete

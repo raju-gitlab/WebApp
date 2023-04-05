@@ -423,6 +423,46 @@ namespace WP.Repository.Classes
 
         #endregion
 
+        #region Put
+        #region Update Modifier For Page
+        public async Task<bool> UpdateModifierForPage(PageUserModel pageUser)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "insert into pagerole(UserId, PageId, RoleId)" +
+                    " values" +
+                    " ((select Id from Usertbl where UserName = '' OR Email = ''), (select Id from pages where PageUUID = @PageId) , (select * from roleslist where RoleId = ''))";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PageId", pageUser.PageId));
+                        cmd.Parameters.Add(new MySqlParameter("@UserId", pageUser.UserId));
+                        cmd.Parameters.Add(new MySqlParameter("@RoleId", pageUser.RoleId));
+                        if (Convert.ToInt32(cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            await con.CloseAsync();
+                            return true;
+                        }
+                        else
+                        {
+                            await con.CloseAsync();
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                throw;
+            }
+        }
+        #endregion
+        #endregion
         public async Task<string> ModifyPage(PageModifyModel page)
         {
             try
