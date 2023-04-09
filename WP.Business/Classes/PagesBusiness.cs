@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Web.Http;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Repository.Interfaces;
@@ -230,6 +231,20 @@ namespace WP.Business.Classes
             {
                 await LogManager.Log(ex);
                 throw;
+            }
+        }
+        #endregion
+
+        #region Update Page Image
+        public async Task<bool> UploadLogo([FromBody] PageLogoModel pageLogo)
+        {
+            try
+            {
+                return await this._postsRepository.UploadLogo(pageLogo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

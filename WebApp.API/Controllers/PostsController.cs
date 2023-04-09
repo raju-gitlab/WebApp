@@ -62,7 +62,7 @@ namespace WebApp.API.Controllers
         }
         #endregion
 
-        #region MyRegion
+        #region TopPosts
         [HttpGet]
         public async Task<IHttpActionResult> TopPosts(string UserId)
         {

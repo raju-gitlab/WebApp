@@ -9,7 +9,7 @@ namespace WP.Model.Models
         public string OwnerId { get; set; }
         public string PageName { get; set; }
         public string PageDescription { get; set; }
-        public string ProfileImagePath { get; set; }
+        public string ProfileImagePath { get; set; } = string.Empty;
         public long Subscribers { get; set; }
         public long LikesCount { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -45,5 +45,10 @@ namespace WP.Model.Models
         public string UserId { get; set; }
         public string PageId { get; set; }
         public string RoleId { get; set; }
+    }
+    public class PageLogoModel
+    {
+        public string ImagePath { get; set; }
+        public string PageGuid { get; set; }
     }
 }

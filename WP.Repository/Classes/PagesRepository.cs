@@ -501,6 +501,41 @@ namespace WP.Repository.Classes
             }
         }
 
+        #region UploadLogo
+        public async Task<bool> UploadLogo(PageLogoModel pageLogo)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "UPDATE pages SET ProfileImagePath=@ProfileImagePath where PageUUID=@PageId";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@ProfileImagePath", pageLogo.ImagePath);
+                        cmd.Parameters.Add(new MySqlParameter("@PageId", pageLogo.PageGuid));
+
+                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            await con.CloseAsync();
+                            return true;
+                        }
+                        else
+                        {
+                            await con.CloseAsync();
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         #region Delete
         #region DeletePage
         public async Task<bool> DeletePage(string UserId, string PageId)

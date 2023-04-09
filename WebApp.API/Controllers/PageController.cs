@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Management;
+using System.Web.Optimization;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Utillities.Utilities;
@@ -201,6 +202,29 @@ namespace WebApp.API.Controllers
             {
                 await LogManager.Log(ex);
                 throw;
+            }
+        }
+        #endregion
+
+        #region Update Page Image
+        [HttpPut]
+        public async Task<IHttpActionResult> UploadLogo([FromBody] PageLogoModel pageLogo)
+        {
+            try
+            {
+                if (await this._postsBusiness.UploadLogo(pageLogo))
+                {
+                    return Ok("success");
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest(ex.InnerException.ToString());
             }
         }
         #endregion

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Web.Http;
 using WP.Model.Models;
 
 namespace WP.Business.Interfaces
@@ -18,5 +19,6 @@ namespace WP.Business.Interfaces
         Task<bool> DeletePage(string UserId, string PageId);
         Task<List<RolesModel>> UserRoles();
         Task<bool> UpdateModifierForPage(PageUserModel pageUser);
+        Task<bool> UploadLogo(PageLogoModel pageLogo);
     }
 }
