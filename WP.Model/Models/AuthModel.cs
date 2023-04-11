@@ -38,4 +38,5 @@ namespace WP.Model.Models
         public long ContactNumber { get; set; }
         public string UserId { get; set; }
     }
+    public class UserInfoModel : AccountModifyModel{ }
 }

@@ -37,6 +37,7 @@ namespace WP.Business.Classes
             }
         }
         #endregion
+
         #region Check validity
         public async Task<bool> IsValid(string pageName)
         {
@@ -157,6 +158,20 @@ namespace WP.Business.Classes
         }
         #endregion
 
+        #region Page Users
+        public async Task<List<UserInfoModel>> PageUsers(string PageId)
+        {
+            try
+            {
+                return await this._postsRepository.PageUsers(PageId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Post
@@ -241,6 +256,20 @@ namespace WP.Business.Classes
             try
             {
                 return await this._postsRepository.UploadLogo(pageLogo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Update Page User
+        public async Task<bool> UpdatePageUser(PageUserModel pageUser)
+        {
+            try
+            {
+                return await this._postsRepository.UpdatePageUser(pageUser);
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using System.Data.Common;
 using WP.Utillities.Utilities;
+using System.CodeDom;
 
 namespace WP.Repository.Classes
 {
@@ -333,6 +334,45 @@ namespace WP.Repository.Classes
         }
         #endregion
 
+        #region Page Users
+        public async Task<List<UserInfoModel>> PageUsers(string PageId)
+        {
+            try
+            {
+                List<UserInfoModel> users = new List<UserInfoModel>();
+                string ConnectionnString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string Query = "select ut.UserName, ut.FirstName, ut.LastName from usertbl ut" +
+                    " inner join pagerole p on p.UserId = ut.Id" +
+                    " where PageId = (select Id from pages where PageUUID = @PageId)";
+                using(MySqlConnection con = new MySqlConnection(ConnectionnString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(Query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PageId", PageId));
+                        DbDataReader rdr = await cmd.ExecuteReaderAsync();
+                        while (await rdr.ReadAsync())
+                        {
+                            users.Add(new UserInfoModel
+                            {
+                                UserName = rdr["UserName"].ToString(),
+                                FirstName = rdr["FirstName"].ToString(),
+                                LastName = rdr["LastName"].ToString(),
+                                
+                            });
+                        }
+                    }
+                }
+                return users;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Check Name Validity
@@ -536,6 +576,48 @@ namespace WP.Repository.Classes
             }
         }
         #endregion
+
+        #region Update Page User
+        public async Task<bool> UpdatePageUser(PageUserModel pageUser)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                
+                string query = "INSERT INTO pagerole (UserId, PageId, RoleId)" +
+                    " VALUES" +
+                    " ((SELECT Id FROM usertbl where UserName = @UserGuid OR Email = @UserGuid)," +
+                    " (SELECT Id FROM pages where PageUUID = @PageUUID)," +
+                    " (SELECT Id FROM roleslist where RoleId = @RoleId))";
+                using(MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using(MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PageUUID", pageUser.PageId));
+                        cmd.Parameters.Add(new MySqlParameter("@UserGuid", pageUser.UserId));
+                        cmd.Parameters.Add(new MySqlParameter("@RoleId", pageUser.RoleId));
+                        if(Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            await con.CloseAsync();
+                            return true;
+                        }
+                        else
+                        {
+                            await con.CloseAsync();
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region Delete
         #region DeletePage
         public async Task<bool> DeletePage(string UserId, string PageId)

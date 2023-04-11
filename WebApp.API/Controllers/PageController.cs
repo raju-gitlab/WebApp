@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Management;
-using System.Web.Optimization;
 using WP.Business.Interfaces;
 using WP.Model.Models;
 using WP.Utillities.Utilities;
@@ -127,6 +125,30 @@ namespace WebApp.API.Controllers
         }
         #endregion
 
+        #region Get Page Users List(Sub users of page)
+        [HttpGet]
+        public async Task<IHttpActionResult> PageUsers(string PageId)
+        {
+            try 
+            {
+                var result = this._postsBusiness.PageUsers(PageId);
+                if(result != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch(Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
+            }
+        } 
+        #endregion
+
         #endregion
 
         #region POST
@@ -225,6 +247,29 @@ namespace WebApp.API.Controllers
             {
                 await LogManager.Log(ex);
                 return BadRequest(ex.InnerException.ToString());
+            }
+        }
+        #endregion
+
+        #region Update Page Users
+        [HttpPut]
+        public async Task<IHttpActionResult> UpdatePageUsers(PageUserModel updateUser)
+        {
+            try
+            {
+                if(await this._postsBusiness.UpdatePageUser(updateUser))
+                {
+                    return Ok("success");
+                }
+                else
+                {
+                    return Ok("fail");
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
             }
         }
         #endregion

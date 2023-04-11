@@ -123,8 +123,8 @@ namespace WP.Repository.Classes
                 string pass = Encryption.getHash(salt+auth.Password);
                 userName = (auth.Email.Split('@')[0].Length < 5) ? auth.Email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Replace('-', 'm').Substring(0, 5) : auth.Email.Split('@')[0].Substring(0, 5) + "_" + Guid.NewGuid().ToString().Replace('-', 'm').Substring(0, 5);
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
-                string query = Convert.ToString("insert into usertbl(FirstName, LastName, UserName, Email, Password, PasswordSalt, ContactNumber, IsVerified, CreationDate, ModifiedDate, UserGuid, UserType)" +
-                "values(@FirstName, @LastName, @UserName, @Email, @Password, @PasswordSalt, @ContactNumber, @IsVerified, @CreationDate, @ModifiedDate, @UUID, @UserType)");
+                string query = Convert.ToString("insert into usertbl(FirstName, LastName, UserName, Email, Password, PasswordSalt, IsVerified, CreationDate, ModifiedDate, UserGuid, UserType)" +
+                "values(@FirstName, @LastName, @UserName, @Email, @Password, @PasswordSalt, @IsVerified, @CreationDate, @ModifiedDate, @UUID, @UserType)");
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();

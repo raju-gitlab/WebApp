@@ -9,6 +9,7 @@ namespace WP.Business.Interfaces
     public interface IPagesBusiness
     {
         Task<List<PageCardModel>> GetPagesByUserId(string UserId);
+        Task<List<UserInfoModel>> PageUsers(string PageId);
         Task<PageViewModel> PageDetails(string PageId, string UserId);
         Task<List<PageModel>> ListPages();
         Task<Tuple<PageModel, List<PostsViewModel>>> PageById(string PageId);
@@ -20,5 +21,6 @@ namespace WP.Business.Interfaces
         Task<List<RolesModel>> UserRoles();
         Task<bool> UpdateModifierForPage(PageUserModel pageUser);
         Task<bool> UploadLogo(PageLogoModel pageLogo);
+        Task<bool> UpdatePageUser(PageUserModel pageUser);
     }
 }
