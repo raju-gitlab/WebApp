@@ -95,8 +95,6 @@ namespace WebApp.API.Controllers
             try
             {
                 var httpRequest = HttpContext.Current.Request;
-                var file = httpRequest.Files["UploadFile"];
-                string FileName = Guid.NewGuid().ToString().Replace('-', 'a') + "." + file.ContentType.ToString().Split('/')[1];
                 var posts = new PostsViewModel();
                 posts.PageUUID = httpRequest.Form["PageUUID"];
                 posts.UserUUID = httpRequest.Form["UserUUID"];
@@ -107,12 +105,10 @@ namespace WebApp.API.Controllers
                 posts.UserUUID = httpRequest.Form["UserUUID"];
                 posts.PostTags = httpRequest.Form["AllTags"];
                 posts.UniqueTags = httpRequest.Form["UniqueTags"];
-                posts.FilePath = FileName;
+                posts.FilePath = "";
                 string result = await this._postsBusiness.CreatePagePost(posts);
                 if (!String.IsNullOrEmpty(result))
                 {
-                    var filePath = HttpContext.Current.Server.MapPath("~/Files/PagePostImages/" + FileName);
-                    file.SaveAs(filePath);
                     return Ok(result);
                 }
                 else
@@ -134,8 +130,6 @@ namespace WebApp.API.Controllers
             try
             {
                 var httpRequest = HttpContext.Current.Request;
-                var file = httpRequest.Files["UploadFile"];
-                string FileName = Guid.NewGuid().ToString().Replace('-', 'a') + "." + file.ContentType.ToString().Split('/')[1];
                 var posts = new PostsViewModel();
                 posts.UserUUID = httpRequest.Form["UserUUID"];
                 posts.PostTitle = httpRequest.Form["PostTitle"];
@@ -145,12 +139,10 @@ namespace WebApp.API.Controllers
                 posts.UserUUID = httpRequest.Form["UserUUID"];
                 posts.PostTags = httpRequest.Form["AllTags"];
                 posts.UniqueTags = httpRequest.Form["UniqueTags"];
-                posts.FilePath = FileName;
+                posts.FilePath = "";
                 string result = await this._postsBusiness.CreatePost(posts);
                 if (!String.IsNullOrEmpty(result))
                 {
-                    var filePath = HttpContext.Current.Server.MapPath("~/Files/PostImages/" + FileName);
-                    file.SaveAs(filePath);
                     return Ok(result);
                 }
                 else
@@ -209,6 +201,55 @@ namespace WebApp.API.Controllers
                 throw;
             }
             return Ok(result);
+        }
+        #endregion
+
+        #endregion
+
+        #region Put
+        #region Update Post Image
+        [HttpPut]
+        public async Task<IHttpActionResult> UpdatePostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                if (await this._postsBusiness.UploadPostImage(updatePost))
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
+            }
+        }
+        #endregion
+
+        #region Update Post Image
+        [HttpPut]
+        public async Task<IHttpActionResult> UpdatePagePostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                if (await this._postsBusiness.UploadPagePostImage(updatePost))
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogManager.Log(ex);
+                return BadRequest();
+            }
         }
         #endregion
 

@@ -131,7 +131,7 @@ namespace WebApp.API.Controllers
         {
             try 
             {
-                var result = this._postsBusiness.PageUsers(PageId);
+                var result = await this._postsBusiness.PageUsers(PageId);
                 if(result != null)
                 {
                     return Ok(result);

@@ -74,7 +74,7 @@ namespace WP.Business.Classes
                             string[] tags = posts.PostTags.Split(',');
                             tags.Union(PostTagslist);
                             var str1 = "";
-                            if (await this._postsRepository.UpdateTagslist(tags, result, 1))
+                            if(await this._postsRepository.UpdatePostsTagslist(tags, result))
                             {
                                 return result;
                             }
@@ -93,7 +93,7 @@ namespace WP.Business.Classes
                         string[] tags = posts.PostTags.Split(',');
                         tags.Union(posts.UniqueTags.Split(','));
                         var str1 = "";
-                        if (await this._postsRepository.UpdateTagslist(tags, result, 1))
+                        if (await this._postsRepository.UpdatePostsTagslist(tags, result))
                         {
                             return result;
                         }
@@ -150,7 +150,7 @@ namespace WP.Business.Classes
                         {
                             string[] tags = posts.PostTags.Split(',').AsEnumerable().Where(e => e.Length > 0).ToArray();
                             tags.Union(PostTagslist);
-                            if (await this._postsRepository.UpdateTagslist(tags, result, 2))
+                            if (await this._postsRepository.UpdateTagslist(tags, result, posts.PageUUID))
                             {
                                 return result;
                             }
@@ -169,7 +169,7 @@ namespace WP.Business.Classes
                         string[] tags = posts.PostTags.Split(',').Select(x => x.ToLower()).Distinct<string>().Where(x => x.Length > 0).ToArray();
                         tags.Union(posts.UniqueTags.Split(','));
                         var str1 = "";
-                        if (await this._postsRepository.UpdateTagslist(tags, result, 1))
+                        if (await this._postsRepository.UpdateTagslist(tags, result, posts.PageUUID))
                         {
                             return result;
                         }
@@ -283,7 +283,7 @@ namespace WP.Business.Classes
 
 
         #region UpdateTagslist
-        public async Task<bool> UpdateTagslist(string[] tags, string PostId, int PostType)
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId, string PageId)
         {
             try
             {
@@ -293,8 +293,59 @@ namespace WP.Business.Classes
                 }
                 else
                 {
-                    return await this._postsRepository.UpdateTagslist(tags, PostId, PostType);
+                    return await this._postsRepository.UpdateTagslist(tags, PostId, PageId);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region UpdatePageTagslist
+        public async Task<bool> UpdatePostsTagslist(string[] tags, string PostId)
+        {
+            try
+            {
+                if (tags.Length == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return await this._postsRepository.UpdatePostsTagslist(tags, PostId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+        #endregion
+
+        #region Put
+        #region UploadPostImage
+        public async Task<bool> UploadPostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                return await this._postsRepository.UploadPostImage(updatePost);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region UploadPostImage
+        public async Task<bool> UploadPagePostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                return await this._postsRepository.UploadPagePostImage(updatePost);
             }
             catch (Exception ex)
             {

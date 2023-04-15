@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using WP.Model.Models;
@@ -28,10 +29,10 @@ namespace WP.Repository.Classes
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Posts p" +
-                " INNER JOIN postcategories pg ON pg.Id = p.PostCategory " +
+                " INNER JOIN categories pg ON pg.Id = p.PostCategory " +
                 " INNER JOIN usertbl u ON u.Id = p.UserId " +
                 " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1 ORDER BY p.CreatedOn ASC";
-                List<PostsViewModel> result = null;
+                List<PostsViewModel> result = new List<PostsViewModel>();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {
                     await con.OpenAsync();
@@ -43,16 +44,16 @@ namespace WP.Repository.Classes
                         {
                             result.Add(new PostsViewModel
                             {
+                                FirstName = (rdr["FirstName"].ToString() != null) ? rdr["FirstName"].ToString() : "No Name",
+                                LastName = (rdr["LastName"].ToString() != null) ? rdr["LastName"].ToString() : "No Name",
+                                UserUUID = (rdr["UserGuid"].ToString() != null) ? rdr["UserGuid"].ToString() : "No Name",
                                 PostTitle = (rdr["PostTitle"].ToString() != null) ? rdr["PostTitle"].ToString() : "No Title",
                                 PostDescription = (rdr["PostDescription"].ToString() != null) ? rdr["PostDescription"].ToString() : null,
                                 FilePath = (rdr["FilePath"].ToString() != null) ? rdr["FilePath"].ToString() : null,
-                                CreatedDate = (rdr["CreatedDate"].ToString() != null) ? DateTime.Parse(rdr["CreatedDate"].ToString()) : DateTime.Parse(null),
-                                ModifiedDate = (rdr["ModifiedDate"].ToString() != null) ? DateTime.Parse(rdr["ModifiedDate"].ToString()) : DateTime.Parse(null),
+                                CreatedDate = (rdr["CreatedOn"].ToString() != null) ? DateTime.Parse(rdr["CreatedOn"].ToString()) : DateTime.Parse(null),
                                 DislikeCount = (Convert.ToInt64(rdr["DislikeCount"].ToString()) != -1) ? Convert.ToInt64(rdr["DislikeCount"].ToString()) : 0,
                                 LikeCount = (Convert.ToInt64(rdr["LikeCount"].ToString()) != -1) ? Convert.ToInt64(rdr["LikeCount"].ToString()) : 0,
-                                IsBlocked = Convert.ToBoolean(rdr["IsBlocked"]),
-                                PostCategoryName = (rdr["PostCategoryName"].ToString() != null) ? rdr["PostCategoryName"].ToString() : null,
-                                SpamReportCount = (Convert.ToInt64(rdr["SpamReportCount"].ToString()) != -1) ? Convert.ToInt64(rdr["SpamReportCount"].ToString()) : 0,
+                                PostCategoryName = (rdr["CategoryName"].ToString() != null) ? rdr["CategoryName"].ToString() : null,
                                 PostUUID = (rdr["PostUUID"].ToString() != null) ? rdr["PostUUID"].ToString() : null
                             });
                         }
@@ -444,44 +445,74 @@ namespace WP.Repository.Classes
         #endregion  
 
         #region UpdateTagslist
-        public async Task<bool> UpdateTagslist(string[] tags, string PostId, int PostType)
+        public async Task<bool> UpdateTagslist(string[] tags, string PostId, string PageId)
         {
             try
             {
                 string ConnectinoString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 IEnumerable<string> uniqueItems = tags.Distinct<string>();
-                string query = "INSERT INTO Post_tags(PostId, PagePostId, TagId) values ";
-                if(PostType == 1)
-                {
-                    foreach (string item in uniqueItems)
-                    {
-                        query += $"((select Id from Posts where PostUUID = '{PostId}'), '4', (select Id from Tags Where tagename = '{item}')),";
-                    }
-                }
-                else
-                {
-                    foreach (string item in uniqueItems)
-                    {
-                        query += $"('4', (select Id from page_specific_posts where PostUUID = '{PostId}'), (select Id from Tags Where tagename = '{item}')),";
-                    }
-                }
-                query = query.Remove(query.Length - 1);
+                string query = "INSERT INTO page_post_tags(PageId,PostId, TagId) values ((select Id from Pages where PageUUID = @PageId),(select Id from page_specific_posts where PostUUID = @PostId), (select Id from Tags Where tagename = @TagName))";
                 using (MySqlConnection con = new MySqlConnection(ConnectinoString))
                 {
                     await con.OpenAsync();
-                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    foreach(string item in uniqueItems)
                     {
-                        cmd.CommandType = CommandType.Text;
-                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        using (MySqlCommand cmd = new MySqlCommand(query, con))
                         {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
+                            cmd.Parameters.Add(new MySqlParameter("@PageId", PageId));
+                            cmd.Parameters.Add(new MySqlParameter("@PostId", PostId));
+                            cmd.Parameters.Add(new MySqlParameter("@TagName", item));
+                            cmd.CommandType = CommandType.Text;
+                            if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                     }
                 }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region UpdatePostsTagslist
+        public async Task<bool> UpdatePostsTagslist(string[] tags, string PostId)
+        {
+            try
+            {
+                string ConnectinoString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                IEnumerable<string> uniqueItems = tags.Distinct<string>();
+                string query = "INSERT INTO post_tags(PostId, TagId) values ((select Id from posts where PostUUID = @PostId), (select Id from Tags Where tagename = @TagName))";
+                using (MySqlConnection con = new MySqlConnection(ConnectinoString))
+                {
+                    await con.OpenAsync();
+                    foreach (string item in uniqueItems)
+                    {
+                        using (MySqlCommand cmd = new MySqlCommand(query, con))
+                        {
+                            cmd.Parameters.Add(new MySqlParameter("@PostId", PostId));
+                            cmd.Parameters.Add(new MySqlParameter("@TagName", item));
+                            cmd.CommandType = CommandType.Text;
+                            if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
             }
             catch (Exception ex)
             {
@@ -531,12 +562,14 @@ namespace WP.Repository.Classes
                 await LogManager.Log(ex);
                 return null;
             }
-        } 
+        }
         #endregion
 
         #endregion
 
         #region PUT
+
+        #region Update Existing Post
         public async Task<PostsViewModel> UpdateExistingPost(CreatePostModel post)
         {
             try
@@ -572,7 +605,76 @@ namespace WP.Repository.Classes
 
                 throw;
             }
+        } 
+        #endregion
+
+        #region Upload Post Image
+        public async Task<bool> UploadPostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "update posts set FilePath = @FilePath where PostUUID = @PostId";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PostId", updatePost.PostUUID));
+                        cmd.Parameters.AddWithValue("@FilePath", updatePost.FilePath);
+
+                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+        #endregion
+
+        #region Upload Post Image
+        public async Task<bool> UploadPagePostImage(CreatePostModel updatePost)
+        {
+            try
+            {
+                string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
+                string query = "update page_specific_posts set FilePath = @FilePath where PostUUID = @PostId";
+                using (MySqlConnection con = new MySqlConnection(ConnectionString))
+                {
+                    await con.OpenAsync();
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add(new MySqlParameter("@PostId", updatePost.PostUUID));
+                        cmd.Parameters.AddWithValue("@FilePath", updatePost.FilePath);
+
+                        if (Convert.ToInt32(await cmd.ExecuteNonQueryAsync()) > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         #endregion
 
         #region DELETE
