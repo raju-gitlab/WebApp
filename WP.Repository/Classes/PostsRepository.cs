@@ -29,9 +29,15 @@ namespace WP.Repository.Classes
             {
                 string ConnectionString = ConfigurationManager.AppSettings["ConnectionString"].ToString();
                 string query = "SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Posts p" +
-                " INNER JOIN categories pg ON pg.Id = p.PostCategory " +
-                " INNER JOIN usertbl u ON u.Id = p.UserId " +
-                " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1 ORDER BY p.CreatedOn ASC";
+                    " INNER JOIN categories pg ON pg.Id = p.PostCategory" +
+                    " INNER JOIN usertbl u ON u.Id = p.UserId" +
+                    " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1" +
+                    " UNION ALL" +
+                    " SELECT u.FirstName, u.LastName, u.UserGuid, p.PostTitle, p.PostDescription, pg.CategoryName, p.FilePath, p.CreatedOn, P.likeCount, p.DislikeCount, p.PostUUID from Page_specific_posts p" +
+                    " INNER JOIN categories pg ON pg.Id = p.PostCategory" +
+                    " INNER JOIN usertbl u ON u.Id = p.UserId" +
+                    " WHERE P.IsBlocked = 0 AND p.MediaVisibility = 1" +
+                    " ORDER BY CreatedOn ASC";
                 List<PostsViewModel> result = new List<PostsViewModel>();
                 using (MySqlConnection con = new MySqlConnection(ConnectionString))
                 {

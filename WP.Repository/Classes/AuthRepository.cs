@@ -79,7 +79,7 @@ namespace WP.Repository.Classes
                         if(rdr == null)
                         {
                             await con.CloseAsync();
-                            return "User not found";
+                            return null;
                         }
 
                         if(await rdr.ReadAsync())
@@ -87,7 +87,7 @@ namespace WP.Repository.Classes
                             Password = (!string.IsNullOrEmpty(rdr["Password"].ToString())) ? rdr["Password"].ToString() : null;
                             PasswordSalt = (!string.IsNullOrEmpty(rdr["PasswordSalt"].ToString())) ? rdr["PasswordSalt"].ToString() : null;
                             UserID = (!string.IsNullOrEmpty(rdr["UserGuid"].ToString())) ? rdr["UserGuid"].ToString() : null;
-                            if(Encryption.getHash(password + PasswordSalt) == Password)
+                            if(Encryption.getHash(PasswordSalt + password) == Password)
                             {
                                 await con.CloseAsync();
                                 return UserID;

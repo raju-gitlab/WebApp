@@ -34,7 +34,14 @@ namespace WebApp.API.Controllers
             var result = await this._authBusiness.Login(UserName, Password);
             if (result != null)
             {
-                return Ok(result);
+                if(Guid.TryParse(result.ToString(), out _))
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             else if (result.ToLower().ToString() == "User not found".ToLower().ToString())
             {
